@@ -118,8 +118,12 @@ Geheimnisse: Die Claude-Code-Umgebung enthält nur `DATABASE_URL` des `dev`-Zwei
 - Claude Haiku 5.5: 0,10 $ / 0,50 $ pro Million Ein-/Ausgabe-Tokens (belegt). Bei ~20 Anfragen/Tag geschätzt < 1 $/Monat (Vermutung) → Annahme 3 nach dem Start mit echten Zahlen prüfen.
 
 ## 12. Beim Setup zu prüfen
-- Ticket 1: exakte Versionen in `package.json` fixieren (siehe Abschnitt 3)
+- Ticket 1: exakte Versionen in `package.json` fixieren (siehe Abschnitt 3) – **erledigt 09.10.2026:** Next.js 16.4.0, React 19.3.0, TypeScript 6.0.3, Tailwind CSS 4.3.3, ESLint 10.12.0, Prettier 3.9.9, Vitest 5.0.3, Playwright 1.64.0
 - Ticket 1: Vercel-Funktionsregion Frankfurt (`fra1`) im Hobby-Tarif möglich?
+- Ticket 1: **Sicherheitsprüfung `npm audit` zweistufig** (Entscheidung Thies, 09.10.2026). Das Paket `braces` hat eine hohe Lücke (GHSA-vfj7-8cjw-p6xm, Lahmlegen durch verschachtelte Suchmuster), für die es noch keine reparierte Version gibt. Es kommt über `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch`, läuft nur beim Linten und wird nicht mit der App ausgeliefert. Darum prüft die CI:
+  - ausgelieferte Pakete: `npm audit --omit=dev --audit-level=high` (rot ab „hoch“)
+  - alle Pakete inkl. Entwicklungswerkzeuge: `npm audit --audit-level=critical` (rot ab „kritisch“)
+  - Sobald `braces` oder `eslint-config-next` repariert ist: zurück zu `npm audit --audit-level=high` für alle Pakete.
 - Ticket 2: Neon – automatisches Aufwachen nach Pause im Free-Plan bestätigen
 - Ticket 4: AI SDK 6 oder 7? Dabei prüfen, ob es eine eingebaute Tool-Freigabe gibt
 - Umgebungsvariablen-Namen von Better Auth laut aktueller Doku

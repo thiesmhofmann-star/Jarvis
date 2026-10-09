@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Die Prüfung liest nur den Code, sie braucht keine Schreibrechte.
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    name: Prüfen
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Code holen
+        uses: actions/checkout@v7
+
+      - name: Node.js aus .nvmrc einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Format, Lint, Typen, Unit-Tests, Build
+        run: npm run check
+
+      - name: Playwright-Browser installieren
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E-Tests
+        run: npm run test:e2e
+
+      # Zweistufig, mit Thies abgestimmt am 09.10.2026: In braces (über
+      # eslint-config-next) steckt eine hohe Lücke ohne reparierte Version.
+      # Das Paket läuft nur beim Linten und wird nicht ausgeliefert.
+      # Sobald es eine Reparatur gibt: zurück zu `npm audit --audit-level=high`.
+      - name: Sicherheitsprüfung ausgelieferte Pakete (ab „hoch“)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Sicherheitsprüfung alle Pakete (ab „kritisch“)
+        run: npm audit --audit-level=critical
