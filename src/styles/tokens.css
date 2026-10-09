@@ -1,10 +1,132 @@
 /*
- * Design-Tokens der Jarvis-App.
+ * Design-Tokens der Jarvis-App – Platzhalter-Gestaltung (ADR-005).
  *
- * Alle Gestaltungswerte (Farben, Schriften, Abstände, Radien …) werden nur hier
- * festgelegt, als Tailwind-Variablen per `@theme`. Komponenten verwenden
- * ausschließlich diese Tokens, nie feste Werte. So kann Thies das Design später
- * an einer einzigen Stelle ändern (ADR-005).
+ * Alle Gestaltungswerte stehen nur hier. Komponenten verwenden ausschließlich
+ * die Tailwind-Klassen, die aus diesen Tokens entstehen (z. B. `bg-flaeche`,
+ * `text-text-gedaempft`, `p-mittel`, `rounded-gross`), nie feste Werte.
+ * Thies kann das Design später allein in dieser Datei ändern.
  *
- * Vorerst leer: Die Platzhalter-Gestaltung kommt mit Ticket 3 (App-Hülle).
+ * `--*: initial` löscht die Standardwerte von Tailwind. Dadurch gibt es keine
+ * Klassen wie `bg-red-500` oder `p-4`; wer einen Wert braucht, muss ihn hier
+ * als Token anlegen.
+ *
+ * Wichtig beim Ändern:
+ * - Die Farben stehen zusätzlich in `src/styles/farben.ts`, weil Manifest,
+ *   App-Icon und Browser-Leiste keine CSS-Variablen lesen können. Ein Test
+ *   (`farben.test.ts`) meldet, wenn beide Dateien auseinanderlaufen.
+ * - Jedes Text-Hintergrund-Paar braucht nach WCAG 2.2 AA mindestens 4,5:1,
+ *   große Schrift 3:1. Ränder und Fokusrahmen brauchen 3:1. Die aktuellen
+ *   Werte stehen unten bei den Farben. Die Barrierefreiheits-Tests (axe)
+ *   prüfen die Kontraste zusätzlich auf allen Seiten, hell und dunkel.
  */
+
+@theme static {
+  --*: initial;
+
+  /* ---------- Farben, hell ----------
+   * Kontraste (gerechnet nach WCAG 2.2):
+   *   text            auf hintergrund 17,01:1 · auf flaeche 15,25:1
+   *   text-gedaempft  auf hintergrund  6,73:1 · auf flaeche  6,03:1
+   *   akzent          auf hintergrund  7,04:1 · auf flaeche  6,31:1
+   *   fehler          auf hintergrund  6,24:1 · auf flaeche  5,59:1
+   *   auf-akzent      auf akzent       7,04:1
+   *   rand (kein Text, 3:1 nötig)   auf hintergrund 3,67:1 · auf flaeche 3,29:1
+   *   Fokusrahmen = akzent (kein Text, 3:1 nötig): siehe akzent oben
+   */
+  --color-hintergrund: #ffffff;
+  --color-flaeche: #f2f2f7;
+  --color-text: #1c1c1e;
+  --color-text-gedaempft: #5b5b63;
+  --color-rand: #85858b;
+  --color-akzent: #0050c8;
+  --color-auf-akzent: #ffffff;
+  --color-fehler: #c0151d;
+
+  /* ---------- Schrift ----------
+   * Systemschrift: auf dem iPhone San Francisco, auf dem Laptop die des
+   * Betriebssystems. Größen in rem, damit sie mit der Systemeinstellung
+   * wachsen (siehe globals.css zu iOS).
+   */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  --text-klein: 0.75rem;
+  --text-klein--line-height: 1.25;
+  --text-normal: 1rem;
+  --text-normal--line-height: 1.5;
+  --text-gross: 1.25rem;
+  --text-gross--line-height: 1.4;
+  --text-titel: 2rem;
+  --text-titel--line-height: 1.2;
+
+  --font-weight-normal: 400;
+  --font-weight-fett: 600;
+
+  /* ---------- Abstände ---------- */
+  --spacing-0: 0;
+  --spacing-sehr-klein: 0.25rem;
+  --spacing-klein: 0.5rem;
+  --spacing-mittel: 1rem;
+  --spacing-gross: 1.5rem;
+  --spacing-sehr-gross: 2.5rem;
+  /* Mindestgröße für alles, was man antippt: 44 × 44 px bei 16 px Grundschrift */
+  --spacing-tippflaeche: 2.75rem;
+  /* Größe der Symbole in der Tab-Leiste */
+  --spacing-symbol: 1.5rem;
+
+  /* ---------- Breiten ---------- */
+  /* Inhalt bleibt auf dem Laptop lesbar schmal und mittig */
+  --container-inhalt: 40rem;
+
+  /* ---------- Radien ---------- */
+  --radius-klein: 0.5rem;
+  --radius-gross: 1rem;
+  --radius-rund: 9999px;
+
+  /* ---------- Bewegung ---------- */
+  --animate-pulsieren: pulsieren 1.5s ease-in-out infinite;
+
+  @keyframes pulsieren {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+}
+
+/* ---------- Farben, dunkel ----------
+ * Gilt automatisch, wenn das Gerät auf Dunkelmodus steht.
+ * Kontraste:
+ *   text            auf hintergrund 17,32:1 · auf flaeche 15,08:1
+ *   text-gedaempft  auf hintergrund  7,99:1 · auf flaeche  6,96:1
+ *   akzent          auf hintergrund  8,38:1 · auf flaeche  7,29:1
+ *   fehler          auf hintergrund  8,56:1 · auf flaeche  7,45:1
+ *   auf-akzent      auf akzent       8,38:1
+ *   rand (kein Text, 3:1 nötig)   auf hintergrund 3,62:1 · auf flaeche 3,16:1
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-hintergrund: #111113;
+    --color-flaeche: #1f1f23;
+    --color-text: #f5f5f7;
+    --color-text-gedaempft: #a8a8b0;
+    --color-rand: #6c6c74;
+    --color-akzent: #7aaeff;
+    --color-auf-akzent: #111113;
+    --color-fehler: #ff8f87;
+  }
+}
+
+/* ---------- Fokusrahmen ----------
+ * Keine Tailwind-Tokens, sondern einfache Variablen für den sichtbaren Fokus
+ * (siehe globals.css). Farbe ist immer `akzent`.
+ */
+:root {
+  color-scheme: light dark;
+  --fokus-breite: 0.1875rem;
+  --fokus-abstand: 0.125rem;
+}

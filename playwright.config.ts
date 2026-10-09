@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = 3100;
 const baseURL = `http://localhost:${PORT}`;
 
+// iPhone ist das Hauptgerät: Bildschirmgröße, Touch und Kennung eines iPhones.
+const iphone = devices["iPhone 17"];
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -14,12 +17,20 @@ export default defineConfig({
   },
   projects: [
     {
-      // iPhone ist das Hauptgerät: Bildschirmgröße, Touch und Kennung eines iPhones.
-      // Gerendert wird mit Chromium statt mit WebKit (dem Safari-Motor), weil in der
-      // Claude-Code-Umgebung nur Chromium bereitsteht.
-      name: "iphone",
-      use: { ...devices["iPhone 17"], browserName: "chromium" },
+      // Läuft überall, auch in Claude Code, wo nur Chromium bereitsteht.
+      name: "iphone-chromium",
+      use: { ...iphone, browserName: "chromium" },
     },
+    // Nur in der CI: WebKit ist die Technik von Safari und damit am nächsten
+    // am echten iPhone. Die CI installiert WebKit dafür mit.
+    ...(process.env.CI
+      ? [
+          {
+            name: "iphone-webkit",
+            use: { ...iphone, browserName: "webkit" as const },
+          },
+        ]
+      : []),
   ],
   webServer: {
     // Getestet wird der Produktions-Build, so nah wie möglich an Vercel.
