@@ -1,0 +1,7 @@
+# Von npm erzeugt, nicht von Hand formatieren
+package-lock.json
+
+# Planungsdokumente, die Thies aus dem App-Board pflegt. Prettier würde nur
+# Leerzeilen und Tabellen umbrechen; eingefügter Text soll die CI nicht rot machen.
+CLAUDE.md
+docs/

@@ -1,0 +1,32 @@
+# Abhängigkeiten
+/node_modules
+
+# Tests
+/coverage
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+
+# Next.js
+/.next/
+/out/
+/build
+
+# Verschiedenes
+.DS_Store
+*.pem
+
+# Logs
+npm-debug.log*
+
+# Umgebungsvariablen: nie ins Repository, nur die Vorlage ohne Werte
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

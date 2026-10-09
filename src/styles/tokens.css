@@ -1,0 +1,10 @@
+/*
+ * Design-Tokens der Jarvis-App.
+ *
+ * Alle Gestaltungswerte (Farben, Schriften, Abstände, Radien …) werden nur hier
+ * festgelegt, als Tailwind-Variablen per `@theme`. Komponenten verwenden
+ * ausschließlich diese Tokens, nie feste Werte. So kann Thies das Design später
+ * an einer einzigen Stelle ändern (ADR-005).
+ *
+ * Vorerst leer: Die Platzhalter-Gestaltung kommt mit Ticket 3 (App-Hülle).
+ */
