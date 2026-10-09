@@ -3,13 +3,22 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket 1 – Projektbasis. Die Startseite ist ein Platzhalter („Im Aufbau“).
+**Stand:** Ticket 3 – App-Hülle. Jarvis lässt sich auf dem iPhone wie eine App nutzen (Tab-Leiste, Home-Bildschirm, hell und dunkel), zeigt aber noch keine Inhalte. Die Gestaltung ist ein Platzhalter.
 
 ## Wo steht was?
 
 - [`docs/architektur.md`](docs/architektur.md) – Architektur und technische Entscheidungen
 - [`CLAUDE.md`](CLAUDE.md) – Arbeitsregeln für Claude Code (Stack, Befehle, Definition of Done)
 - Planung, Tickets und Entscheidungen (ADRs) – App-Board im claude.ai-Projekt „Bauer“
+
+## Die App-Hülle
+
+- **Navigation:** Unten liegt eine Tab-Leiste wie bei iPhone-Apps, mit den Bereichen „Jarvis“ (`/`) und „Einstellungen“ (`/einstellungen`). Die Bereiche stehen als Liste in `src/components/bereiche.ts`. Ein Modul mit eigener Ansicht ergänzt dort einen Eintrag.
+- **Gestaltung:** Alle Farben, Schriftgrößen, Abstände und Radien stehen als Design-Tokens in `src/styles/tokens.css`, für hell und dunkel. Wer das Aussehen ändern will, ändert diese Datei. Die Kontrastwerte stehen dort als Kommentar.
+- **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
+- **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
+
+Details stehen in `docs/architektur.md`, Abschnitt 13.
 
 ## Lokal starten
 
@@ -42,7 +51,7 @@ Vor jedem Commit muss `npm run check` grün sein.
 
 ### End-to-End-Tests lokal
 
-Die E2E-Tests (End-to-End: die App wird wie von einem Menschen im Browser bedient) laufen gegen den Produktions-Build:
+Die E2E-Tests (End-to-End: die App wird wie von einem Menschen im Browser bedient) laufen gegen den Produktions-Build. Lokal nutzen sie Chromium in iPhone-Ansicht:
 
 ```bash
 npx playwright install chromium   # einmalig: Testbrowser herunterladen
@@ -54,6 +63,8 @@ npm run test:e2e
 
 Bei jedem Pull Request und bei jedem Push auf `main` führt GitHub Actions (`.github/workflows/ci.yml`) aus:
 `npm ci` → `npm run check` → Playwright-Browser installieren → `npm run test:e2e` → `npm audit`.
+
+In der CI laufen die E2E-Tests zweimal in iPhone-Ansicht: mit Chromium und mit WebKit, der Technik von Safari. Dazu gehört ein Barrierefreiheits-Check mit axe auf allen Seiten, hell und dunkel, gegen die Regeln von WCAG 2.2 AA.
 
 `npm audit` sucht nach bekannten Sicherheitslücken in den Paketen. Es prüft in zwei Stufen, siehe `docs/architektur.md`, Abschnitt 12.
 

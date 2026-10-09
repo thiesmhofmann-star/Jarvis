@@ -10,4 +10,12 @@ describe("Startseite", () => {
       screen.getByRole("heading", { level: 1, name: "Jarvis" }),
     ).toBeInTheDocument();
   });
+
+  it("zeigt den Leer-Zustand für den Chat", () => {
+    render(<Startseite />);
+
+    expect(
+      screen.getByText("Hier kommt bald der Chat mit Jarvis hin."),
+    ).toBeInTheDocument();
+  });
 });

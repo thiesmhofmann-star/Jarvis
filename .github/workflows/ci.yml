@@ -30,8 +30,10 @@ jobs:
       - name: Format, Lint, Typen, Unit-Tests, Build
         run: npm run check
 
-      - name: Playwright-Browser installieren
-        run: npx playwright install --with-deps chromium
+      # WebKit ist die Technik von Safari; damit laufen die E2E-Tests
+      # zusätzlich so nah wie möglich am iPhone (siehe playwright.config.ts).
+      - name: Playwright-Browser installieren (Chromium und WebKit)
+        run: npx playwright install --with-deps chromium webkit
 
       - name: E2E-Tests
         run: npm run test:e2e

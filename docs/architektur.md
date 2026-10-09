@@ -130,6 +130,39 @@ Geheimnisse: Die Claude-Code-Umgebung enthält nur `DATABASE_URL` des `dev`-Zwei
 - Umgebungsvariablen-Namen von Better Auth laut aktueller Doku
 - Login auf Vercel-Vorschau-Adressen: Google verlangt exakt passende Weiterleitungs-URLs, Vorschau-Adressen wechseln aber. Lösung in Ticket 2 klären (z. B. ein Better-Auth-Plugin für Vorschau-Deployments, Vermutung)
 
+## 13. App-Hülle (Ticket 3)
+Die App fühlt sich auf dem iPhone wie eine App an, ohne Login und ohne Daten. Die Gestaltung ist ein Platzhalter (ADR-005).
+
+**Aufbau**
+- `src/app/layout.tsx`: Sprunglink „Zum Inhalt“, die jeweilige Seite und die Tab-Leiste. Sprache `de`.
+- `src/components/` (neu): gemeinsame Oberflächen-Bausteine.
+  - `bereiche.ts`: Liste der Bereiche in der Tab-Leiste (Adresse, Titel, Symbol). Ein Modul mit eigener Ansicht ergänzt hier einen Eintrag; sonst ändert sich an der Hülle nichts.
+  - `tab-leiste.tsx`: Tab-Leiste unten, klebt beim Scrollen am unteren Rand. Der aktive Bereich ist farbig und fett und trägt `aria-current="page"`. Ein Bereich ist auch auf seinen Unterseiten aktiv.
+  - `seite.tsx`: Rahmen jeder Seite mit den Landmarken `header` (mit `h1`) und `main` (`id="inhalt"`, Ziel des Sprunglinks). Die Navigation ist die dritte Landmarke.
+  - `leer-zustand.tsx`, `fehler-anzeige.tsx`, `knopf.ts`: Leer-Zustand, Fehleranzeige, Knopf-Aussehen.
+- Zustände: `loading.tsx` (Laden), `error.tsx` (Fehler in einer Seite; Layout und Tab-Leiste bleiben), `global-error.tsx` (Fehler im Layout; ersetzt das ganze Dokument), `not-found.tsx` (unbekannte Adresse, Status 404, Link zurück zu Jarvis). Alle mit deutschen Texten, Fehler mit „Erneut versuchen“.
+- Auf dem Laptop gilt dieselbe Leiste; der Inhalt bleibt mittig und höchstens 40 rem breit.
+
+**Design-Tokens** (`src/styles/tokens.css`)
+- Per `@theme` als Tailwind-Variablen: Farben (`hintergrund`, `flaeche`, `text`, `text-gedaempft`, `rand`, `akzent`, `auf-akzent`, `fehler`), Systemschrift, Schriftgrößen in rem, Abstände, Radien, eine Animation fürs Laden.
+- `--*: initial` löscht die Standardwerte von Tailwind. Komponenten können also nur Token-Klassen nutzen (z. B. `bg-flaeche`, `p-mittel`), keine festen Werte.
+- Dunkelmodus folgt automatisch der Geräteeinstellung (`prefers-color-scheme`).
+- Jedes Text-Hintergrund-Paar erfüllt WCAG 2.2 AA; die Kontrastwerte stehen als Kommentar in der Datei.
+- Manifest, App-Icon und Browser-Leiste können keine CSS-Variablen lesen. Die nötigen Farben stehen darum zusätzlich in `src/styles/farben.ts`; ein Unit-Test meldet, wenn beide Dateien auseinanderlaufen.
+
+**Home-Bildschirm und iPhone**
+- `src/app/manifest.ts`: Web-App-Manifest (Name „Jarvis“, `display: standalone`, Start `/`, Farben aus den Tokens, Icons 192 und 512 px).
+- `src/app/icon.tsx` und `src/app/apple-icon.tsx`: Platzhalter-Icon „J“, per Code erzeugt (192, 512 und 180 px für das Apple-Touch-Icon).
+- Apple-Web-App-Metadaten in `layout.tsx`. Statusleiste `default`, weil `black-translucent` weiße Schrift hätte, die auf hellem Grund verschwindet.
+- `viewport-fit=cover` und Safe Areas: Die Hilfsklassen `pt-sicher`, `pb-sicher` und `px-sicher` (in `globals.css`) halten über `env(safe-area-inset-*)` Abstand zu Notch, Dynamic Island und Home-Indikator. Die Tab-Leiste liegt über dem Home-Indikator.
+- Schriftgröße: Auf iOS übernimmt `font: -apple-system-body` die Textgröße aus den iPhone-Einstellungen. Alle Größen sind in rem und wachsen mit.
+- Kein Service Worker und kein Offline-Modus (bewusst nicht in Ticket 3).
+
+**Barrierefreiheit und Tests**
+- Tippflächen mindestens 44 × 44 px (Token `tippflaeche`), sichtbarer Fokusrahmen in der Akzentfarbe, Sprunglink, Landmarken, Schrift in rem.
+- E2E: Tab-Wechsel, Tippflächen-Größe, Sprunglink, „Seite nicht gefunden“, Manifest und Icons. Dazu axe (`@axe-core/playwright`) auf allen Seiten, hell und dunkel, gegen WCAG 2.0 bis 2.2 AA.
+- Lokal und in Claude Code laufen die E2E-Tests mit Chromium in iPhone-Ansicht, in der CI zusätzlich mit WebKit (Safari-Technik).
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css

@@ -1,2 +1,53 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
+
+@layer base {
+  /*
+   * iOS-Schriftgröße übernehmen: Safari auf dem iPhone lässt rem sonst bei
+   * 16 px, egal was unter Einstellungen → Anzeige & Helligkeit → Textgröße
+   * steht. `-apple-system-body` folgt dieser Einstellung, und alle rem-Werte
+   * wachsen mit. Die Bedingung trifft nur iOS, damit macOS-Safari nicht auf
+   * dessen kleinere Systemschrift fällt.
+   */
+  @supports (font: -apple-system-body) and (-webkit-touch-callout: none) {
+    html {
+      font: -apple-system-body;
+    }
+  }
+
+  /* Schrift und Zeilenhöhe nach `font:` oben wieder auf die Tokens setzen */
+  html {
+    font-family: var(--font-sans);
+    line-height: var(--text-normal--line-height);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-hintergrund);
+    color: var(--color-text);
+  }
+
+  /* Sichtbarer Fokus für alle, die mit Tastatur oder Schaltersteuerung arbeiten */
+  :focus-visible {
+    outline: var(--fokus-breite) solid var(--color-akzent);
+    outline-offset: var(--fokus-abstand);
+  }
+}
+
+/*
+ * Safe Areas: Abstand zu Notch, Dynamic Island und Home-Indikator.
+ * env(safe-area-inset-*) ist auf Geräten ohne diese Bereiche 0. Es wirkt nur
+ * mit viewport-fit=cover (gesetzt in layout.tsx).
+ */
+@utility pt-sicher {
+  padding-top: max(var(--spacing-mittel), env(safe-area-inset-top));
+}
+
+@utility pb-sicher {
+  padding-bottom: max(var(--spacing-klein), env(safe-area-inset-bottom));
+}
+
+@utility px-sicher {
+  padding-left: max(var(--spacing-mittel), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-mittel), env(safe-area-inset-right));
+}
