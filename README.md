@@ -3,7 +3,7 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket 4D – Kern im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude und kennt nur einen Demo-Kalender mit erfundenen Terminen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket 8D – Aufgaben & Fristen im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt zwei Demo-Module mit erfundenen Daten: einen Kalender und eine Aufgabenliste mit Fristen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
 
 ## Demo-Modus ausprobieren
 
@@ -11,7 +11,12 @@ Im Bereich „Jarvis“ zum Beispiel:
 
 - „Was steht heute an?“ → Jarvis listet die Demo-Termine von heute.
 - „Trag Zahnarzt Freitag 10 Uhr ein“ → eine Freigabe-Karte erscheint. Erst „Freigeben“ trägt den Termin ein; „Ablehnen“ ändert nichts. Danach zeigt „Was steht Freitag an?“ den Termin.
+- „Neue Aufgabe: Steuererklärung abgeben bis Freitag“ → Freigabe-Karte, nach „Freigeben“ steht die Aufgabe auf der Demo-Liste. Ohne Frist geht es auch („Neue Aufgabe: Fahrrad aufpumpen“).
+- „Was ist diese Woche fällig?“ → offene Aufgaben bis Sonntag, Überfälliges zuerst. „Meine Aufgaben“ → alle offenen.
+- „Steuererklärung ist erledigt“ → Freigabe-Karte „Aufgabe abhaken“; erst „Freigeben“ hakt sie ab. Gibt es keine passende Aufgabe, sagt Jarvis das freundlich.
 - Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
+
+Unter „Einstellungen“ stehen die aktiven Module.
 
 Nach dem Neuladen ist alles wieder auf Anfang.
 
@@ -41,7 +46,7 @@ npm run dev   # Entwicklungsserver starten
 
 Danach ist die App unter <http://localhost:3000> erreichbar.
 
-Umgebungsvariablen braucht die App ab Ticket 2. Dann `.env.example` nach `.env.local` kopieren und die Werte eintragen. `.env.local` landet nie im Repository.
+Umgebungsvariablen braucht die App ab dem Anschluss-Block. Dann `.env.example` nach `.env.local` kopieren und die Werte eintragen. `.env.local` landet nie im Repository.
 
 ## Befehle
 

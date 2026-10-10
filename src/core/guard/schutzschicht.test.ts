@@ -188,4 +188,58 @@ describe("Schutzschicht", () => {
       aktion: { status: "fehlgeschlagen", fehler: "Kalender voll" },
     });
   });
+
+  it("liefert einen Fehler statt abzubrechen, wenn die Vorschau scheitert, und legt keine Aktion an", async () => {
+    const speicher = aktionenImArbeitsspeicher();
+    const anlegen = vi.spyOn(speicher, "anlegen");
+    const ausfuehren = vi.fn(async () => "nie");
+    const schutzschicht = erstelleSchutzschicht({
+      findeWerkzeug: () => ({
+        name: "abhaken",
+        modulId: "test",
+        werkzeug: {
+          description: "",
+          effect: "write",
+          input: z.object({ id: z.string() }),
+          execute: ausfuehren,
+          preview: async () => {
+            throw new Error("Diese Aufgabe gibt es nicht.");
+          },
+        },
+      }),
+      speicher,
+    });
+
+    const ergebnis = await schutzschicht.aufrufen("abhaken", { id: "x" }, ctx);
+
+    expect(ergebnis).toEqual({
+      art: "fehler",
+      meldung: "Diese Aufgabe gibt es nicht.",
+    });
+    expect(anlegen).not.toHaveBeenCalled();
+    expect(ausfuehren).not.toHaveBeenCalled();
+  });
+
+  it("liefert einen Fehler statt abzubrechen, wenn ein Lese-Werkzeug scheitert", async () => {
+    const schutzschicht = erstelleSchutzschicht({
+      findeWerkzeug: () => ({
+        name: "lesen",
+        modulId: "test",
+        werkzeug: {
+          description: "",
+          effect: "read",
+          input: z.object({}),
+          execute: async () => {
+            throw new Error("Liste nicht lesbar");
+          },
+        },
+      }),
+      speicher: aktionenImArbeitsspeicher(),
+    });
+
+    expect(await schutzschicht.aufrufen("lesen", {}, ctx)).toEqual({
+      art: "fehler",
+      meldung: "Liste nicht lesbar",
+    });
+  });
 });

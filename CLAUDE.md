@@ -11,7 +11,7 @@ Thies programmiert nicht selbst. Er gestaltet, prüft und gibt frei; Claude schr
 - Erklärungen, Commit-Beschreibungen in PRs und alle UI-Texte auf Deutsch. Fachbegriffe beim ersten Auftreten in einem Satz erklären.
 - Nach jedem Ticket: kurz erklären, was gebaut wurde und wie Thies es selbst ausprobiert.
 - Planungsquelle ist das App-Board im claude.ai-Projekt „Bauer". Architektur: `docs/architektur.md`. Wer davon abweichen will, klärt das vorher mit Thies.
-- **Demo-Modus bis zum Anschluss-Block:** Jarvis läuft mit Demo-Gehirn (vorbereitete Antworten statt Claude) und Demo-Kalender (erfundene Termine statt Google). Bis zum Anschluss-Block: keine Pakete für Login, Datenbank oder KI; keine echten persönlichen Daten, weil die App ohne Login öffentlich erreichbar ist; nichts dauerhaft speichern, alles lebt nur im Arbeitsspeicher. Neue Fähigkeiten so bauen, dass später nur Gehirn bzw. Datenquelle getauscht werden (`docs/architektur.md`, Abschnitt 14).
+- **Demo-Modus bis zum Anschluss-Block:** Jarvis läuft mit Demo-Gehirn (vorbereitete Antworten statt Claude) und Demo-Kalender (erfundene Termine statt Google). Bis zum Anschluss-Block: keine Pakete für Login, Datenbank oder KI; keine echten persönlichen Daten, weil die App ohne Login öffentlich erreichbar ist; nichts dauerhaft speichern, alles lebt nur im Arbeitsspeicher. Neue Fähigkeiten so bauen, dass später nur Gehirn bzw. Datenquelle getauscht werden (`docs/architektur.md`, Abschnitt 14). Ein neues Modul braucht im Demo-Modus zusätzlich Regeln im Demo-Gehirn (`src/core/assistant/demo-gehirn/`); sie verschwinden mit Claude.
 
 ## Stack
 Stand der Versionen: npm, 09.10.2026.
@@ -19,9 +19,9 @@ Stand der Versionen: npm, 09.10.2026.
 - TypeScript 6.0.x im strict-Modus. **Nicht TypeScript 7:** typescript-eslint unterstützt nur `<6.1`.
 - Tailwind CSS 4.3, Design-Tokens per `@theme` in `src/styles/tokens.css`
 - ESLint 10 mit `eslint-config-next`, Prettier 3
-- Better Auth 1.x (stabile Linie, aktuell 1.7.x; keine 1.8-Beta), Login nur mit Google – ab Ticket 2
-- Neon Postgres, Region Frankfurt (`aws-eu-central-1`), Drizzle ORM 0.45.x + drizzle-kit – ab Ticket 2
-- AI SDK + `@ai-sdk/anthropic`, Standardmodell `claude-haiku-5-5` – ab Ticket 4. Version 6 (Pflege-Linie) oder 7 (aktuell stabil) wird in Ticket 4 mit Thies entschieden; vorher nicht installieren.
+- Better Auth 1.x (stabile Linie, aktuell 1.7.x; keine 1.8-Beta), Login nur mit Google – ab Anschluss-Block
+- Neon Postgres, Region Frankfurt (`aws-eu-central-1`), Drizzle ORM 0.45.x + drizzle-kit – ab Anschluss-Block
+- AI SDK + `@ai-sdk/anthropic`, Standardmodell `claude-haiku-5-5` – ab Anschluss-Block. Version 6 (Pflege-Linie) oder 7 (aktuell stabil) wird im Anschluss-Block mit Thies entschieden; vorher nicht installieren.
 - Zod 4 (Eingaben prüfen), Vitest 5 (Unit/Integration), Playwright 1.x (E2E)
 - Hosting: Vercel Hobby (nur privat, nicht-kommerziell), Projekt `jarvis`
 - Node.js 24 (LTS), fixiert in `.nvmrc` und `package.json` → `engines.node: "24.x"`
@@ -43,7 +43,7 @@ Ab Ticket 1:
 - `npm run build` – Produktions-Build
 - `npm run check` – format:check + lint + typecheck + test + build
 
-Ab Ticket 2:
+Ab Anschluss-Block:
 - `npm run db:generate` – Migration aus `src/db/schema.ts` erzeugen
 - `npm run db:migrate` – Migration auf den Neon-Branch aus `DATABASE_URL` anwenden (in Claude Code ist das immer `dev`)
 

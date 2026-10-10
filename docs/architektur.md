@@ -175,7 +175,8 @@ Chat-Oberfläche (src/components/chat/)
             ├─ Gehirn (Schnittstelle gehirn.ts; heute: demo-gehirn/, später: Claude)
             └─ Schutzschicht (src/core/guard/) – einziger Weg, ein Werkzeug auszuführen
                  └─ Werkzeuge aus der Registry (src/modules/registry.ts)
-                      └─ Modul kalender-demo (src/modules/kalender-demo/)
+                      ├─ Modul kalender-demo (src/modules/kalender-demo/)
+                      └─ Modul aufgaben-demo (src/modules/aufgaben-demo/, seit Ticket 8D, Abschnitt 15)
 ```
 Zusammengesteckt wird alles in `src/core/assistant/jarvis.ts`. Nur dort ändert sich etwas, wenn Teile getauscht werden.
 
@@ -185,10 +186,12 @@ Zusammengesteckt wird alles in `src/core/assistant/jarvis.ts`. Nur dort ändert 
 - Der Chat-Ablauf fragt das Gehirn so lange, bis es mit Text antwortet; höchstens 5 Schritte. Bei einem Schreib-Werkzeug hält er an und zeigt die Freigabe-Karte.
 
 **Demo-Gehirn** (`src/core/assistant/demo-gehirn/`)
-- Erkennt per Schlüsselwörtern, welches Werkzeug passt (`regeln.ts`), und nutzt nur Werkzeuge, die ihm angeboten werden.
-- Versteht „heute“, „morgen“, „übermorgen“, Wochentage (der nächste, heute zählt mit) und Uhrzeiten wie „10 Uhr“, „um 10“, „10:30“. Fehlt Tag oder Uhrzeit, fragt es nach.
+- Erkennt per Schlüsselwörtern, welches Werkzeug passt, und nutzt nur Werkzeuge, die ihm angeboten werden. Die Regeln liegen je Modul in eigenen Dateien (`kalender-regeln.ts`, `aufgaben-regeln.ts`); `regeln.ts` legt ihre Reihenfolge fest.
+- Jede Regel hat zwei Teile: `erkenne` (erster Schritt zu einer Nachricht von Thies) und `weiter` (nächster Schritt, nachdem ein Werkzeug gelaufen ist: antworten oder ein weiteres Werkzeug aufrufen). So sind Abläufe in mehreren Schritten möglich, z. B. erst lesen, dann abhaken (seit Ticket 8D).
+- Versteht „heute“, „morgen“, „übermorgen“, Wochentage (der nächste, heute zählt mit), „diese Woche“ (bis einschließlich Sonntag; ist heute Sonntag, dann heute) und Uhrzeiten wie „10 Uhr“, „um 10“, „10:30“. Fehlt Tag oder Uhrzeit für einen Termin, fragt es nach.
 - Sonst antwortet es freundlich, dass es das im Demo-Modus noch nicht kann.
 - Fasst Werkzeug-Ergebnisse in Sätze. Die Regeln kennen die Demo-Werkzeuge beim Namen; sie verschwinden mit dem Demo-Gehirn. Claude erkennt Werkzeuge später an ihrer Beschreibung.
+- **Im Demo-Modus braucht ein neues Modul deshalb zusätzlich Regeln im Demo-Gehirn.** Mit Claude fallen sie weg; dann reicht wieder: neuer Ordner plus Eintrag in der Registry.
 
 **Modul `kalender-demo`**
 - `termine_am_tag` (lesen): Termine eines Tages, ohne Angabe heute. Ersetzt das ursprünglich geplante `termine_heute` (Entscheidung Thies, 10.10.2026), damit ein eingetragener Termin z. B. am Freitag auch sichtbar wird („Was steht Freitag an?“).
@@ -199,6 +202,7 @@ Zusammengesteckt wird alles in `src/core/assistant/jarvis.ts`. Nur dort ändert 
 1. Das Gehirn will ein Werkzeug nutzen. Die Schutzschicht prüft die Eingabe mit dem Zod-Schema des Werkzeugs.
 2. Lese-Werkzeug: wird sofort ausgeführt, das Ergebnis geht zurück ans Gehirn.
 3. Schreib-Werkzeug: wird **nicht** ausgeführt. Die Schutzschicht erzeugt mit `preview` die Vorschau und legt eine ausstehende Aktion mit Status `offen` ab. Im Chat erscheint die Freigabe-Karte (was passiert, mit welchen Daten, „Freigeben“ und „Ablehnen“).
+   - Korrektur aus Ticket 8D (freigegeben von Thies): Wirft ein Lese-Werkzeug beim Ausführen oder ein Schreib-Werkzeug beim Erzeugen der Vorschau einen Fehler, liefert die Schutzschicht `{ art: "fehler", meldung }` zurück, statt dass die ganze Anfrage abbricht. Dann wird auch keine ausstehende Aktion angelegt. Das Gehirn erklärt den Fehler in einem Satz (z. B. „Diese Aufgabe gibt es nicht.“).
 4. „Freigeben“: Status `freigegeben`, dann Ausführung → `erledigt` oder `fehlgeschlagen`. Danach formuliert das Gehirn die Bestätigung.
 5. „Ablehnen“: Status `abgelehnt`, nichts wird ausgeführt. Jarvis bestätigt, dass nichts geändert wurde.
 6. Jede Aktion lässt sich nur einmal entscheiden, und nur von der Sitzung, die sie ausgelöst hat.
@@ -207,7 +211,7 @@ Die Ablage folgt der Schnittstelle `AktionsSpeicher` (`anlegen`, `holen`, `speic
 
 **Zustand und Grenzen im Demo-Modus**
 - Der Browser erzeugt beim ersten Senden eine zufällige Sitzungs-ID und hält sie nur im Speicher. Nach dem Neuladen beginnt eine neue Sitzung mit leerem Verlauf.
-- Der Server hält je Sitzung Verlauf (höchstens 100 Nachrichten), ausstehende Aktionen (höchstens 50) und Demo-Termine (höchstens 50). Insgesamt höchstens 200 Sitzungen. Nach 2 Stunden ohne Nutzung verfällt eine Sitzung (`src/lib/sitzungs-speicher.ts`).
+- Der Server hält je Sitzung Verlauf (höchstens 100 Nachrichten), ausstehende Aktionen (höchstens 50), Demo-Termine (höchstens 50) und Demo-Aufgaben (höchstens 50). Insgesamt höchstens 200 Sitzungen. Nach 2 Stunden ohne Nutzung verfällt eine Sitzung (`src/lib/sitzungs-speicher.ts`).
 - Auf Vercel gehört dieser Speicher zu einer einzelnen laufenden Funktion. Startet Vercel sie neu oder beantwortet eine andere Instanz die Anfrage, kennt sie die Sitzung nicht. Dann meldet die Freigabe „Diese Freigabe gibt es nicht mehr.“ Im Demo-Modus ist das hinnehmbar; im Anschluss-Block löst die Datenbank das.
 - Nachrichten und Freigaben laufen über dieselbe Route, damit sie sicher denselben Speicher teilen.
 
@@ -219,8 +223,31 @@ Die Ablage folgt der Schnittstelle `AktionsSpeicher` (`anlegen`, `holen`, `speic
 | `gespraecheImArbeitsspeicher()` | Tabellen `conversations` und `messages` |
 | zufällige Sitzungs-ID aus dem Browser | Nutzer-ID aus dem Login (Better Auth) |
 | Modul `kalender-demo` in der Registry | Modul Kalender mit Google |
+| Modul `aufgaben-demo` in der Registry | Modul To-dos & Fristen mit Datenbank |
+| Regeln im Demo-Gehirn je Modul | entfallen (Claude liest die Werkzeug-Beschreibungen) |
 
 Unverändert bleiben: Chat-Oberfläche, Freigabe-Karte, Chat-Ablauf, Schutzschicht-Logik, Registry und Modul-Vertrag.
+
+## 15. Modul Aufgaben & Fristen im Demo-Modus (Ticket 8D)
+Hintergrund: Thies' größtes Problem sind Termine und Fristen, die er im Kopf behält und die durchrutschen; die meisten entstehen mündlich. Ticket 8D gibt Jarvis deshalb eine Aufgabenliste mit Fristen, wie der Kalender im Demo-Modus mit erfundenen Daten. Gleichzeitig zeigt es, dass der Modul-Vertrag trägt: Das Modul ist ein neuer Ordner plus ein Eintrag in `src/modules/registry.ts`. Am Kern (Chat-Ablauf, Schutzschicht-Ablauf, Oberfläche) musste dafür nichts umgebaut werden. Einzige Kern-Änderung ist die kleine, freigegebene Fehler-Korrektur der Schutzschicht (Abschnitt 14).
+
+**Modul `aufgaben-demo`** (`src/modules/aufgaben-demo/`, Name „Aufgaben & Fristen (Demo)“, keine Google-Berechtigungen)
+- Eine Aufgabe hat ID, Titel, optionale Frist (Kalendertag, keine Uhrzeit), erledigt ja/nein und das Kennzeichen `demo: true`.
+- `aufgaben_anzeigen` (lesen): offene Aufgaben, nach Frist sortiert, ohne Frist am Ende. Mit `faelligBis` nur Aufgaben mit Frist bis einschließlich dieses Tages; Überfälliges steht dann oben. Jede Aufgabe kommt mit dem Hinweis `ueberfaellig`.
+- `aufgabe_anlegen` (schreiben, mit `preview`): Titel (1–100 Zeichen) und optionale Frist. Die Freigabe-Karte zeigt Was, Frist und Liste („Demo-Aufgaben, nur im Arbeitsspeicher“).
+- `aufgabe_erledigen` (schreiben, mit `preview`): hakt eine Aufgabe über ihre ID ab. Die Freigabe-Karte zeigt genau die Aufgabe, die danach abgehakt wird. Unbekannte ID oder schon erledigte Aufgabe → verständliche deutsche Fehlermeldung, sowohl in der Vorschau als auch beim Ausführen (falls sich zwischendurch etwas geändert hat).
+- Jede Sitzung startet mit vier erfundenen Aufgaben: eine überfällig (vor zwei Tagen), eine heute fällig, eine in drei Tagen, eine ohne Frist. Höchstens 50 Aufgaben je Sitzung.
+
+**Demo-Gehirn** (`src/core/assistant/demo-gehirn/aufgaben-regeln.ts`)
+- „Neue Aufgabe: … (bis Freitag)“, „Trag eine Aufgabe ein: …“ → `aufgabe_anlegen`. Ohne Frist geht es ohne Rückfrage.
+- „Was ist diese Woche fällig?“, „Was ist bis Freitag fällig?“ → `aufgaben_anzeigen` mit Stichtag; „Was muss ich erledigen?“, „Meine Aufgaben“ → alle offenen.
+- „… ist erledigt“, „Hak … ab“ → zwei Schritte, wie später bei Claude: erst `aufgaben_anzeigen` lesen, dann die passende offene Aufgabe auswählen und `aufgabe_erledigen` mit ihrer ID aufrufen. Passt keine, sagt Jarvis das freundlich; passen mehrere, fragt Jarvis nach und nennt sie.
+- „Trag … ein“ ohne das Wort „Aufgabe“ bleibt ein Termin, „Was steht … an?“ bleiben die Termine.
+- Jarvis verspricht keine Erinnerungen und meldet sich nie von selbst.
+
+**Oberfläche**
+- Chat: Beispielsätze „Was steht heute an?“, „Trag Zahnarzt Freitag 10 Uhr ein“, „Was ist diese Woche fällig?“.
+- Einstellungen: Liste „Aktive Module“ direkt aus der Registry (Name und Beschreibung, nur anzeigen). Darunter der Hinweis, dass Gedächtnis und Konto mit dem Anschluss-Block dazukommen. Die nicht mehr genutzte Komponente `leer-zustand.tsx` ist entfernt.
 
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/

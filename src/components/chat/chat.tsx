@@ -18,7 +18,7 @@ export const DEMO_HINWEIS =
 const BEISPIELE = [
   "Was steht heute an?",
   "Trag Zahnarzt Freitag 10 Uhr ein",
-  "Was steht Freitag an?",
+  "Was ist diese Woche fällig?",
 ];
 
 type Eintrag =

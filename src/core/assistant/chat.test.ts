@@ -92,4 +92,69 @@ describe("Chat im Demo-Modus", () => {
       "Zahnarzt",
     );
   });
+
+  it("legt eine Aufgabe erst nach Freigabe an und zeigt sie in der Woche", async () => {
+    const chat = neuerChat();
+    const c = ctx();
+
+    const [karte] = await chat.sende(
+      "Neue Aufgabe: Steuererklärung abgeben bis Sonntag",
+      c,
+    );
+    if (karte?.art !== "freigabe") throw new Error("Freigabe-Karte erwartet");
+    expect(karte.aktion.vorschau.titel).toBe("Aufgabe anlegen");
+    const entscheidung = await chat.entscheide(karte.aktion.id, "freigeben", c);
+    if (entscheidung.art !== "ok") throw new Error("ok erwartet");
+    expect(text(entscheidung.eintraege)).toContain(
+      "Notiert: „Steuererklärung abgeben“",
+    );
+
+    const woche = text(await chat.sende("Was ist diese Woche fällig?", c));
+    expect(woche).toContain(
+      "Bis Sonntag, 11. Oktober, sind 3 Demo-Aufgaben fällig:",
+    );
+    expect(woche.indexOf("überfällig")).toBeLessThan(
+      woche.indexOf("Steuererklärung"),
+    );
+  });
+
+  it("hakt in zwei Schritten ab; „Ablehnen“ lässt die Aufgabe offen", async () => {
+    const chat = neuerChat();
+    const c = ctx();
+
+    const [abgelehnt] = await chat.sende("Paket ist erledigt", c);
+    if (abgelehnt?.art !== "freigabe")
+      throw new Error("Freigabe-Karte erwartet");
+    expect(abgelehnt.aktion.vorschau.daten[0]).toEqual({
+      label: "Was",
+      wert: "Paket zur Post bringen",
+    });
+    await chat.entscheide(abgelehnt.aktion.id, "ablehnen", c);
+    expect(text(await chat.sende("Meine Aufgaben", c))).toContain(
+      "Paket zur Post bringen",
+    );
+
+    const [karte] = await chat.sende("Paket ist erledigt", c);
+    if (karte?.art !== "freigabe") throw new Error("Freigabe-Karte erwartet");
+    const entscheidung = await chat.entscheide(karte.aktion.id, "freigeben", c);
+    if (entscheidung.art !== "ok") throw new Error("ok erwartet");
+    expect(text(entscheidung.eintraege)).toBe(
+      "Abgehakt: „Paket zur Post bringen“ ist erledigt.",
+    );
+    expect(text(await chat.sende("Meine Aufgaben", c))).not.toContain("Paket");
+  });
+
+  it("zeigt bei einer unbekannten Aufgabe keine Freigabe-Karte", async () => {
+    const eintraege = await neuerChat().sende(
+      "Fliegen lernen ist erledigt",
+      ctx(),
+    );
+
+    expect(eintraege).toEqual([
+      {
+        art: "jarvis",
+        text: "Ich finde keine offene Demo-Aufgabe zu „Fliegen lernen“. Mit „Meine Aufgaben“ zeige ich dir alle offenen.",
+      },
+    ]);
+  });
 });

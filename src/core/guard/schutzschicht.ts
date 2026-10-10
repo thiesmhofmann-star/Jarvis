@@ -14,6 +14,10 @@ export type EntscheidungsErgebnis =
   | { art: "fehlgeschlagen"; aktion: AusstehendeAktion }
   | { art: "fehler"; meldung: string; grund: "unbekannt" | "entschieden" };
 
+function fehlermeldung(fehler: unknown) {
+  return fehler instanceof Error ? fehler.message : String(fehler);
+}
+
 /**
  * Die Schutzschicht ist der einzige Weg, ein Werkzeug auszuführen.
  * Lese-Werkzeuge laufen sofort. Schreib-Werkzeuge werden nur als ausstehende
@@ -45,21 +49,35 @@ export function erstelleSchutzschicht({
       }
 
       const werkzeug = eintrag.werkzeug;
+      // Scheitert ein Werkzeug, kommt der Fehler als Ergebnis zurück. So kann
+      // das Gehirn ihn in einem Satz erklären, statt dass die Anfrage abbricht.
       if (werkzeug.effect === "read") {
-        return {
-          art: "ergebnis",
-          ergebnis: await werkzeug.execute(geprueft.data, ctx),
-        };
+        try {
+          return {
+            art: "ergebnis",
+            ergebnis: await werkzeug.execute(geprueft.data, ctx),
+          };
+        } catch (fehler) {
+          return { art: "fehler", meldung: fehlermeldung(fehler) };
+        }
       }
 
       // Schreiben: nur Vorschau erzeugen und ablegen, nichts ausführen.
+      // Scheitert schon die Vorschau (z. B. unbekannte Aufgabe), wird keine
+      // ausstehende Aktion angelegt.
+      let vorschau;
+      try {
+        vorschau = await werkzeug.preview(geprueft.data, ctx);
+      } catch (fehler) {
+        return { art: "fehler", meldung: fehlermeldung(fehler) };
+      }
       const aktion: AusstehendeAktion = {
         id: crypto.randomUUID(),
         nutzerId: ctx.nutzerId,
         modulId: eintrag.modulId,
         werkzeug: name,
         eingabe: geprueft.data,
-        vorschau: await werkzeug.preview(geprueft.data, ctx),
+        vorschau,
         status: "offen",
         erstelltAm: ctx.jetzt,
       };
@@ -116,8 +134,7 @@ export function erstelleSchutzschicht({
         return { art: "erledigt", aktion };
       } catch (fehler) {
         aktion.status = "fehlgeschlagen";
-        aktion.fehler =
-          fehler instanceof Error ? fehler.message : String(fehler);
+        aktion.fehler = fehlermeldung(fehler);
         await speicher.speichern(aktion);
         return { art: "fehlgeschlagen", aktion };
       }

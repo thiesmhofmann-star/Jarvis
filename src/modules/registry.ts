@@ -1,8 +1,12 @@
+import { aufgabenDemo } from "./aufgaben-demo";
 import { kalenderDemo } from "./kalender-demo";
 import type { JarvisModule, ModuleTool } from "./vertrag";
 
 /** Alle aktiven Module. Neues Modul = neuer Ordner + ein Eintrag hier. */
-export const registrierteModule: readonly JarvisModule[] = [kalenderDemo];
+export const registrierteModule: readonly JarvisModule[] = [
+  kalenderDemo,
+  aufgabenDemo,
+];
 
 export type RegistriertesWerkzeug = {
   name: string;
