@@ -21,6 +21,25 @@ for (const farbschema of ["light", "dark"] as const) {
   test.describe(`Barrierefreiheit (${farbschema === "light" ? "hell" : "dunkel"})`, () => {
     test.use({ colorScheme: farbschema });
 
+    test("Chat mit Freigabe-Karte ohne Verstöße gegen WCAG 2.2 AA", async ({
+      page,
+    }) => {
+      await page.goto("/");
+      await page
+        .getByLabel("Nachricht an Jarvis")
+        .fill("Trag Zahnarzt Freitag 10 Uhr ein");
+      await page.getByRole("button", { name: "Senden" }).click();
+      await expect(
+        page.getByRole("button", { name: "Freigeben" }),
+      ).toBeVisible();
+
+      const ergebnis = await new AxeBuilder({ page })
+        .withTags(wcag22AA)
+        .analyze();
+
+      expect(ergebnis.violations).toEqual([]);
+    });
+
     for (const seite of seiten) {
       test(`${seite.name} ohne Verstöße gegen WCAG 2.2 AA`, async ({
         page,

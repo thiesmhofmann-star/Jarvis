@@ -11,11 +11,9 @@ describe("Startseite", () => {
     ).toBeInTheDocument();
   });
 
-  it("zeigt den Leer-Zustand für den Chat", () => {
+  it("zeigt das Eingabefeld für den Chat", () => {
     render(<Startseite />);
 
-    expect(
-      screen.getByText("Hier kommt bald der Chat mit Jarvis hin."),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Nachricht an Jarvis")).toBeInTheDocument();
   });
 });

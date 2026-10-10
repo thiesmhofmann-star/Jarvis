@@ -46,7 +46,7 @@ Ein Modul ist ein Ordner unter `src/modules/<id>/` und wird in einer zentralen L
 3. optional **eigene Tabellen**
 4. die **Google-Berechtigungen**, die es braucht (werden erst beim Aktivieren angefragt)
 
-Skizze der Schnittstelle (plausibel, wird in Ticket 5 festgezurrt):
+Skizze der Schnittstelle. Seit Ticket 4D verbindlich festgelegt in `src/modules/vertrag.ts`; `ctx` ist dort der `WerkzeugKontext` (für wen, wann):
 ```ts
 type JarvisModule = {
   id: string;                 // z. B. "calendar"
@@ -70,7 +70,8 @@ Regel: Das Steckplatz-System bleibt so allgemein, wie die bekannten Module es br
 - Werkzeuge mit `effect: "write"` werden nie direkt ausgeführt. Der Kern legt einen Eintrag in `pending_actions` an und zeigt eine **Freigabe-Karte** (was passiert, wo, mit welchen Daten).
 - Ausführung erst nach Tippen auf „Freigeben"; „Ablehnen" verwirft. Ergebnis und Fehler werden im selben Eintrag protokolliert.
 - Nie automatisch senden, löschen oder ändern – auch nicht, wenn das Modell es vorschlägt.
-- Ob das AI SDK (Version 6 oder 7, siehe Abschnitt 3) eine eingebaute Freigabe-Funktion für Tools bietet, wird in Ticket 4 und 6 geprüft; sonst eigene Umsetzung.
+- Ob das AI SDK (Version 6 oder 7, siehe Abschnitt 3) eine eingebaute Freigabe-Funktion für Tools bietet, wird im Anschluss-Block geprüft; sonst eigene Umsetzung.
+- Seit Ticket 4D umgesetzt in `src/core/guard/`, vorerst mit Ablage im Arbeitsspeicher. Ablauf siehe Abschnitt 14.
 
 ## 6. Gedächtnis
 - Jarvis speichert Fakten über Personen, Projekte und Vorlieben in `memories`, wenn Thies sie nennt oder ausdrücklich darum bittet.
@@ -162,6 +163,64 @@ Die App fühlt sich auf dem iPhone wie eine App an, ohne Login und ohne Daten. D
 - Tippflächen mindestens 44 × 44 px (Token `tippflaeche`), sichtbarer Fokusrahmen in der Akzentfarbe, Sprunglink, Landmarken, Schrift in rem.
 - E2E: Tab-Wechsel, Tippflächen-Größe, Sprunglink, „Seite nicht gefunden“, Manifest und Icons. Dazu axe (`@axe-core/playwright`) auf allen Seiten, hell und dunkel, gegen WCAG 2.0 bis 2.2 AA.
 - Lokal und in Claude Code laufen die E2E-Tests mit Chromium in iPhone-Ansicht, in der CI zusätzlich mit WebKit (Safari-Technik).
+
+## 14. Kern im Demo-Modus (Ticket 4D)
+Entscheidung Thies: Alle Zugänge (Google-Login, Datenbank, Claude-API, echter Kalender) kommen gesammelt in den **Anschluss-Block**. Bis dahin läuft der vollständige Kern mit einem **Demo-Gehirn**, das vorbereitete Antworten gibt. Die App ist ohne Login öffentlich, deshalb gibt es keine echten Daten, und nichts wird dauerhaft gespeichert.
+
+**Bausteine und Weg einer Nachricht**
+```
+Chat-Oberfläche (src/components/chat/)
+  └─ POST /api/chat (eine Route für Nachrichten und Freigaben, Eingabe mit Zod geprüft)
+       └─ Chat-Ablauf (src/core/assistant/chat.ts)
+            ├─ Gehirn (Schnittstelle gehirn.ts; heute: demo-gehirn/, später: Claude)
+            └─ Schutzschicht (src/core/guard/) – einziger Weg, ein Werkzeug auszuführen
+                 └─ Werkzeuge aus der Registry (src/modules/registry.ts)
+                      └─ Modul kalender-demo (src/modules/kalender-demo/)
+```
+Zusammengesteckt wird alles in `src/core/assistant/jarvis.ts`. Nur dort ändert sich etwas, wenn Teile getauscht werden.
+
+**Gehirn-Schnittstelle** (`src/core/assistant/gehirn.ts`)
+- Eingabe: der Verlauf (Nachrichten von Thies, von Jarvis und Werkzeug-Ausgänge: Ergebnis, abgelehnt oder Fehler), die angebotenen Werkzeuge (Name, Beschreibung, Lesen/Schreiben, Zod-Schema der Eingabe) und der aktuelle Zeitpunkt.
+- Ausgabe: entweder Text oder ein Werkzeug-Aufruf (Name und Eingabe).
+- Der Chat-Ablauf fragt das Gehirn so lange, bis es mit Text antwortet; höchstens 5 Schritte. Bei einem Schreib-Werkzeug hält er an und zeigt die Freigabe-Karte.
+
+**Demo-Gehirn** (`src/core/assistant/demo-gehirn/`)
+- Erkennt per Schlüsselwörtern, welches Werkzeug passt (`regeln.ts`), und nutzt nur Werkzeuge, die ihm angeboten werden.
+- Versteht „heute“, „morgen“, „übermorgen“, Wochentage (der nächste, heute zählt mit) und Uhrzeiten wie „10 Uhr“, „um 10“, „10:30“. Fehlt Tag oder Uhrzeit, fragt es nach.
+- Sonst antwortet es freundlich, dass es das im Demo-Modus noch nicht kann.
+- Fasst Werkzeug-Ergebnisse in Sätze. Die Regeln kennen die Demo-Werkzeuge beim Namen; sie verschwinden mit dem Demo-Gehirn. Claude erkennt Werkzeuge später an ihrer Beschreibung.
+
+**Modul `kalender-demo`**
+- `termine_am_tag` (lesen): Termine eines Tages, ohne Angabe heute. Ersetzt das ursprünglich geplante `termine_heute` (Entscheidung Thies, 10.10.2026), damit ein eingetragener Termin z. B. am Freitag auch sichtbar wird („Was steht Freitag an?“).
+- `termin_anlegen` (schreiben, mit `preview`): legt einen Demo-Termin an (Titel, Beginn, Dauer, Standard 60 Minuten).
+- Jede Sitzung startet mit drei erfundenen Terminen für heute. Höchstens 50 Termine je Sitzung.
+
+**Ablauf der Schutzschicht**
+1. Das Gehirn will ein Werkzeug nutzen. Die Schutzschicht prüft die Eingabe mit dem Zod-Schema des Werkzeugs.
+2. Lese-Werkzeug: wird sofort ausgeführt, das Ergebnis geht zurück ans Gehirn.
+3. Schreib-Werkzeug: wird **nicht** ausgeführt. Die Schutzschicht erzeugt mit `preview` die Vorschau und legt eine ausstehende Aktion mit Status `offen` ab. Im Chat erscheint die Freigabe-Karte (was passiert, mit welchen Daten, „Freigeben“ und „Ablehnen“).
+4. „Freigeben“: Status `freigegeben`, dann Ausführung → `erledigt` oder `fehlgeschlagen`. Danach formuliert das Gehirn die Bestätigung.
+5. „Ablehnen“: Status `abgelehnt`, nichts wird ausgeführt. Jarvis bestätigt, dass nichts geändert wurde.
+6. Jede Aktion lässt sich nur einmal entscheiden, und nur von der Sitzung, die sie ausgelöst hat.
+
+Die Ablage folgt der Schnittstelle `AktionsSpeicher` (`anlegen`, `holen`, `speichern`). Heute steckt der Arbeitsspeicher dahinter, im Anschluss-Block die Tabelle `pending_actions` (Abschnitt 7). Die Status entsprechen sich: offen = open, freigegeben = approved, abgelehnt = rejected, erledigt = done, fehlgeschlagen = failed.
+
+**Zustand und Grenzen im Demo-Modus**
+- Der Browser erzeugt beim ersten Senden eine zufällige Sitzungs-ID und hält sie nur im Speicher. Nach dem Neuladen beginnt eine neue Sitzung mit leerem Verlauf.
+- Der Server hält je Sitzung Verlauf (höchstens 100 Nachrichten), ausstehende Aktionen (höchstens 50) und Demo-Termine (höchstens 50). Insgesamt höchstens 200 Sitzungen. Nach 2 Stunden ohne Nutzung verfällt eine Sitzung (`src/lib/sitzungs-speicher.ts`).
+- Auf Vercel gehört dieser Speicher zu einer einzelnen laufenden Funktion. Startet Vercel sie neu oder beantwortet eine andere Instanz die Anfrage, kennt sie die Sitzung nicht. Dann meldet die Freigabe „Diese Freigabe gibt es nicht mehr.“ Im Demo-Modus ist das hinnehmbar; im Anschluss-Block löst die Datenbank das.
+- Nachrichten und Freigaben laufen über dieselbe Route, damit sie sicher denselben Speicher teilen.
+
+**Was im Anschluss-Block getauscht wird** (alles in `src/core/assistant/jarvis.ts` bzw. der Registry)
+| Heute (Demo) | Später |
+|---|---|
+| `erstelleDemoGehirn()` | Claude über das AI SDK |
+| `aktionenImArbeitsspeicher()` | Tabelle `pending_actions` |
+| `gespraecheImArbeitsspeicher()` | Tabellen `conversations` und `messages` |
+| zufällige Sitzungs-ID aus dem Browser | Nutzer-ID aus dem Login (Better Auth) |
+| Modul `kalender-demo` in der Registry | Modul Kalender mit Google |
+
+Unverändert bleiben: Chat-Oberfläche, Freigabe-Karte, Chat-Ablauf, Schutzschicht-Logik, Registry und Modul-Vertrag.
 
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/

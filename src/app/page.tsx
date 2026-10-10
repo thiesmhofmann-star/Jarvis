@@ -1,12 +1,5 @@
-import { LeerZustand } from "@/components/leer-zustand";
-import { Seite } from "@/components/seite";
+import { Chat } from "@/components/chat/chat";
 
 export default function Startseite() {
-  return (
-    <Seite titel="Jarvis">
-      <LeerZustand titel="Noch kein Chat">
-        Hier kommt bald der Chat mit Jarvis hin.
-      </LeerZustand>
-    </Seite>
-  );
+  return <Chat />;
 }
