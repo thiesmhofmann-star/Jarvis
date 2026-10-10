@@ -8,6 +8,8 @@ import { Symbol } from "./symbol";
 /**
  * Tab-Leiste am unteren Rand, wie bei iPhone-Apps. Bleibt beim Scrollen
  * sichtbar und hält über `pb-sicher` Abstand zum Home-Indikator.
+ * Die Höhe kommt aus dem Token `tab-leiste`; `ueber-tab-leiste` in
+ * globals.css rechnet mit genau diesem Aufbau.
  */
 export function TabLeiste() {
   const pfad = usePathname();
@@ -17,7 +19,7 @@ export function TabLeiste() {
       aria-label="Hauptnavigation"
       className="sticky bottom-0 border-t border-rand bg-flaeche px-sicher pb-sicher"
     >
-      <ul className="mx-auto flex max-w-inhalt justify-around">
+      <ul className="mx-auto flex h-tab-leiste max-w-inhalt justify-around">
         {bereiche.map((bereich) => {
           const aktiv = istAktiv(bereich.href, pfad);
           return (
@@ -26,7 +28,7 @@ export function TabLeiste() {
                 href={bereich.href}
                 aria-current={aktiv ? "page" : undefined}
                 // Aktiv: Akzentfarbe und fett, damit es nicht nur an der Farbe hängt.
-                className={`flex min-h-tippflaeche min-w-tippflaeche flex-col items-center justify-center gap-sehr-klein px-mittel pt-klein text-klein ${
+                className={`flex h-full min-w-tippflaeche flex-col items-center justify-center gap-sehr-klein px-mittel text-klein ${
                   aktiv ? "font-fett text-akzent" : "text-text-gedaempft"
                 }`}
               >

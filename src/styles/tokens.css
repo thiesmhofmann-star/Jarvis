@@ -74,10 +74,16 @@
   --spacing-tippflaeche: 2.75rem;
   /* Größe der Symbole in der Tab-Leiste */
   --spacing-symbol: 1.5rem;
+  /* Höhe der Tab-Leiste ohne Safe Area; das Chat-Eingabefeld sitzt darüber */
+  --spacing-tab-leiste: 3.5rem;
+  /* Höchste Höhe des Chat-Eingabefelds, danach scrollt der Text darin */
+  --spacing-eingabe-max: 8rem;
 
   /* ---------- Breiten ---------- */
   /* Inhalt bleibt auf dem Laptop lesbar schmal und mittig */
   --container-inhalt: 40rem;
+  /* Chat-Nachrichten nehmen höchstens so viel der Breite ein */
+  --container-sprechblase: 85%;
 
   /* ---------- Radien ---------- */
   --radius-klein: 0.5rem;

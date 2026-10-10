@@ -51,3 +51,15 @@
   padding-left: max(var(--spacing-mittel), env(safe-area-inset-left));
   padding-right: max(var(--spacing-mittel), env(safe-area-inset-right));
 }
+
+/*
+ * Für Elemente, die direkt über der Tab-Leiste kleben sollen (Chat-Eingabe).
+ * Rechnet die Höhe der Tab-Leiste aus denselben Tokens wie tab-leiste.tsx:
+ * 1 px Rand oben + Zeilenhöhe + Safe-Area-Abstand unten (wie pb-sicher).
+ */
+@utility ueber-tab-leiste {
+  bottom: calc(
+    1px + var(--spacing-tab-leiste) +
+      max(var(--spacing-klein), env(safe-area-inset-bottom))
+  );
+}

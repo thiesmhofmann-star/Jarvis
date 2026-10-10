@@ -11,6 +11,7 @@ Thies programmiert nicht selbst. Er gestaltet, prüft und gibt frei; Claude schr
 - Erklärungen, Commit-Beschreibungen in PRs und alle UI-Texte auf Deutsch. Fachbegriffe beim ersten Auftreten in einem Satz erklären.
 - Nach jedem Ticket: kurz erklären, was gebaut wurde und wie Thies es selbst ausprobiert.
 - Planungsquelle ist das App-Board im claude.ai-Projekt „Bauer". Architektur: `docs/architektur.md`. Wer davon abweichen will, klärt das vorher mit Thies.
+- **Demo-Modus bis zum Anschluss-Block:** Jarvis läuft mit Demo-Gehirn (vorbereitete Antworten statt Claude) und Demo-Kalender (erfundene Termine statt Google). Bis zum Anschluss-Block: keine Pakete für Login, Datenbank oder KI; keine echten persönlichen Daten, weil die App ohne Login öffentlich erreichbar ist; nichts dauerhaft speichern, alles lebt nur im Arbeitsspeicher. Neue Fähigkeiten so bauen, dass später nur Gehirn bzw. Datenquelle getauscht werden (`docs/architektur.md`, Abschnitt 14).
 
 ## Stack
 Stand der Versionen: npm, 09.10.2026.
@@ -28,7 +29,8 @@ Stand der Versionen: npm, 09.10.2026.
 Exakte Versionen stehen in `package.json`. Nur stabile Releases (npm-Tag `latest`); Beta, RC oder Canary nur nach Freigabe. Pakete erst mit dem Ticket installieren, das sie braucht.
 
 ## Ticket-Reihenfolge
-1 Projektbasis → 3 App-Hülle → 2 Login und Zugangsschutz → 4 Kern-Chat → 5 Steckplätze und Test-Stecker → 6 Schutzschicht → 7 Gedächtnis → danach Module einzeln. Ticket 2 wartet auf den Google-Zugang, Ticket 4 auf den Claude-API-Schlüssel. Details stehen im App-Board.
+1 Projektbasis → 3 App-Hülle → 4D Kern im Demo-Modus → Anschluss-Block → danach Module einzeln.
+Der Anschluss-Block umfasst Login, Datenbank, Claude, echten Kalender, Schutzschicht dauerhaft (Tabelle `pending_actions`) und Gedächtnis. Er wartet auf den Google-Zugang und den Claude-API-Schlüssel. Details stehen im App-Board.
 
 ## Befehle
 Ab Ticket 1:
@@ -54,9 +56,12 @@ src/core/assistant/      Chat, Systemprompt, Werkzeug-Registry
 src/core/guard/          Schutzschicht: pending_actions, Freigabe-Karte
 src/core/memory/         Gedächtnis
 src/modules/registry.ts  Liste aller aktiven Module
+src/modules/vertrag.ts   Modul-Vertrag (Typen JarvisModule, ModuleTool)
 src/modules/<id>/        ein Ordner pro Modul
 src/db/schema.ts         Drizzle-Schema (Kern-Tabellen)
+src/lib/                 kleine Hilfen (Zeit in Europe/Berlin, Speicher je Sitzung)
 src/lib/google/          Google-API-Client mit Token-Erneuerung
+src/components/          gemeinsame Oberflächen-Bausteine (Tab-Leiste, Seitenrahmen, Chat)
 src/styles/tokens.css    Design-Tokens
 drizzle/                 erzeugte Migrationen (nicht von Hand ändern)
 docs/architektur.md      Architektur
@@ -64,7 +69,7 @@ tests/e2e/               Playwright-Tests
 ```
 
 ## Modul-Vertrag
-Ein Modul exportiert aus `src/modules/<id>/index.ts` ein Objekt vom Typ `JarvisModule` (siehe `docs/architektur.md`, Abschnitt 4):
+Ein Modul exportiert aus `src/modules/<id>/index.ts` ein Objekt vom Typ `JarvisModule` (Typen in `src/modules/vertrag.ts`, siehe `docs/architektur.md`, Abschnitt 4):
 - `id`, `name`, `description`
 - `googleScopes` – so wenige wie möglich
 - `tools` – jedes Werkzeug mit Zod-Eingabe, `effect: "read" | "write"` und `execute`

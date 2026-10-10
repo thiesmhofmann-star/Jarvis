@@ -3,7 +3,17 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket 3 – App-Hülle. Jarvis lässt sich auf dem iPhone wie eine App nutzen (Tab-Leiste, Home-Bildschirm, hell und dunkel), zeigt aber noch keine Inhalte. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket 4D – Kern im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude und kennt nur einen Demo-Kalender mit erfundenen Terminen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+
+## Demo-Modus ausprobieren
+
+Im Bereich „Jarvis“ zum Beispiel:
+
+- „Was steht heute an?“ → Jarvis listet die Demo-Termine von heute.
+- „Trag Zahnarzt Freitag 10 Uhr ein“ → eine Freigabe-Karte erscheint. Erst „Freigeben“ trägt den Termin ein; „Ablehnen“ ändert nichts. Danach zeigt „Was steht Freitag an?“ den Termin.
+- Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
+
+Nach dem Neuladen ist alles wieder auf Anfang.
 
 ## Wo steht was?
 
@@ -13,12 +23,12 @@ Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module 
 
 ## Die App-Hülle
 
-- **Navigation:** Unten liegt eine Tab-Leiste wie bei iPhone-Apps, mit den Bereichen „Jarvis“ (`/`) und „Einstellungen“ (`/einstellungen`). Die Bereiche stehen als Liste in `src/components/bereiche.ts`. Ein Modul mit eigener Ansicht ergänzt dort einen Eintrag.
+- **Navigation:** Unten liegt eine Tab-Leiste wie bei iPhone-Apps, mit den Bereichen „Jarvis“ (`/`, der Chat) und „Einstellungen“ (`/einstellungen`). Die Bereiche stehen als Liste in `src/components/bereiche.ts`. Ein Modul mit eigener Ansicht ergänzt dort einen Eintrag.
 - **Gestaltung:** Alle Farben, Schriftgrößen, Abstände und Radien stehen als Design-Tokens in `src/styles/tokens.css`, für hell und dunkel. Wer das Aussehen ändern will, ändert diese Datei. Die Kontrastwerte stehen dort als Kommentar.
 - **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
 - **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
 
-Details stehen in `docs/architektur.md`, Abschnitt 13.
+Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle) und 14 (Kern im Demo-Modus).
 
 ## Lokal starten
 
