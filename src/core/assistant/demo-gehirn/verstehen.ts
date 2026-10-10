@@ -77,3 +77,28 @@ export function findeUhrzeit(
   }
   return null;
 }
+
+/** Findet „diese Woche“ bzw. „(bis Ende) dieser Woche“: bis einschließlich Sonntag. */
+export function findeDieseWoche(
+  w: Woerter,
+  jetzt: Date,
+): { datum: string; positionen: number[] } | null {
+  for (let i = 0; i + 1 < w.klein.length; i++) {
+    if (
+      !["diese", "dieser"].includes(w.klein[i]!) ||
+      w.klein[i + 1] !== "woche"
+    ) {
+      continue;
+    }
+    const positionen = [i, i + 1];
+    let davor = i - 1;
+    while (
+      ["bis", "in", "noch", "ende", "zum"].includes(w.klein[davor] ?? "")
+    ) {
+      positionen.push(davor--);
+    }
+    // Sonntag dieser Woche; ist heute Sonntag, dann heute.
+    return { datum: naechsterWochentag(jetzt, 0), positionen };
+  }
+  return null;
+}

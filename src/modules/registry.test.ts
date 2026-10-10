@@ -40,11 +40,21 @@ describe("Registry", () => {
     ).toThrow(/doppelt/);
   });
 
-  it("enthält das Demo-Kalender-Modul mit Lese- und Schreib-Werkzeug", () => {
-    expect(registrierteModule.map((m) => m.id)).toContain("kalender-demo");
-    expect(werkzeuge.map((w) => [w.name, w.werkzeug.effect])).toEqual([
-      ["termine_am_tag", "read"],
-      ["termin_anlegen", "write"],
+  it("liefert die Werkzeuge beider Demo-Module, Namen eindeutig", () => {
+    expect(registrierteModule.map((m) => m.id)).toEqual([
+      "kalender-demo",
+      "aufgaben-demo",
     ]);
+    expect(
+      werkzeuge.map((w) => [w.modulId, w.name, w.werkzeug.effect]),
+    ).toEqual([
+      ["kalender-demo", "termine_am_tag", "read"],
+      ["kalender-demo", "termin_anlegen", "write"],
+      ["aufgaben-demo", "aufgaben_anzeigen", "read"],
+      ["aufgaben-demo", "aufgabe_anlegen", "write"],
+      ["aufgaben-demo", "aufgabe_erledigen", "write"],
+    ]);
+    const namen = werkzeuge.map((w) => w.name);
+    expect(new Set(namen).size).toBe(namen.length);
   });
 });
