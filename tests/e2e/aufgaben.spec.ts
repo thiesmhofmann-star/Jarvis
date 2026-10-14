@@ -138,6 +138,9 @@ test("Einstellungen zeigen alle Demo-Module", async ({ page }) => {
     page.getByRole("heading", { level: 3, name: "Posteingang (Demo)" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("heading", { level: 3, name: "Notizen (Demo)" }),
+  ).toBeVisible();
+  await expect(
     page.getByText("Gedächtnis und Konto kommen mit dem Anschluss-Block dazu."),
   ).toBeVisible();
 });

@@ -10,6 +10,7 @@ import {
   aufgabenAnzeigen,
 } from "./aufgaben-regeln";
 import { terminAnlegen, termineAmTag } from "./kalender-regeln";
+import { notizAnlegen, notizenAnzeigen, notizLoeschen } from "./notizen-regeln";
 import {
   antwortEntwurf,
   entwuerfeAnzeigen,
@@ -27,7 +28,7 @@ import {
 /**
  * Alle Regeln des Demo-Gehirns. Die Reihenfolge zählt, die erste passende
  * gewinnt:
- * - „Antworte …: …“ ganz vorn, der Text darf alles enthalten,
+ * - „Antworte …: …“ und „Notiz: …“ ganz vorn, der Text darf alles enthalten,
  * - Mail-Sätze nach den Termin-Sätzen („Trag Mail schreiben … ein“ ist ein Termin),
  * - Aufgaben pflegen vor dem Abhaken: „Frist“ und „Aufgabe … löschen“ sind eindeutig,
  *   „Was habe ich erledigt?“ und „… ist doch nicht erledigt“ vor dem Abhaken,
@@ -41,6 +42,9 @@ import {
  */
 export const demoRegeln: readonly DemoRegel[] = [
   antwortEntwurf,
+  notizAnlegen,
+  notizLoeschen,
+  notizenAnzeigen,
   aufgabeAendern,
   aufgabeLoeschen,
   erledigteAnzeigen,

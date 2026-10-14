@@ -379,6 +379,19 @@ Ein drittes Demo-Modul: neuer Ordner `src/modules/posteingang-demo/` plus ein Ei
 - Dafür bräuchte Jarvis Gmail-Berechtigungen (lesen und Entwürfe anlegen). Sie gelten bei Google als eingeschränkt bzw. sensibel; ein Prüfverfahren ist möglich. **Gmail-Berechtigungen nie ohne Thies' Freigabe** (CLAUDE.md, Fallstricke).
 - Entfällt dann: erfundene Mails, Obergrenze im Arbeitsspeicher, Regeln im Demo-Gehirn. Bleibt: Werkzeug-Namen, Karte, Schutzschicht.
 
+## 21. Modul Notizen im Demo-Modus (Ticket E)
+Ein viertes Demo-Modul: `src/modules/notizen-demo/` plus ein Eintrag in der Registry; am Kern ändert sich nichts.
+
+- **Daten:** Jede Sitzung startet mit zwei erfundenen Notizen. Höchstens 50 Notizen zu je höchstens 500 Zeichen, nur im Arbeitsspeicher.
+- **Werkzeuge:** `notizen_anzeigen` (lesen, neueste zuerst, mit `suche` nur die mit allen Wörtern), `notiz_anlegen` (schreiben, Karte „Notiz anlegen“), `notiz_loeschen` (schreiben über die ID, Karte „Notiz löschen“).
+- **Demo-Gehirn** (`notizen-regeln.ts`):
+  - „Notiz: …“, „Neue Notiz: …“, „Mach mir eine Notiz: …“, „Schreib dir auf: …“ → anlegen. Der Text bleibt unverändert, auch mit Uhrzeiten oder Satzzeichen, denn diese Regel steht ganz vorn.
+  - „Meine Notizen“, „Was habe ich mir notiert?“, „Notizen zu Kochbuch“ → anzeigen.
+  - „Lösch die Notiz Kochbuch“ → zwei Schritte: suchen, dann über die ID löschen. Passen mehrere, fragt Jarvis nach.
+  - „Notier Zahnarzt Freitag 10 Uhr“ bleibt wie bisher ein Termin.
+- Abgrenzung zum Gedächtnis (Anschluss-Block): Notizen legt Thies ausdrücklich ab und sieht sie als Liste. Das Gedächtnis merkt sich später selbstständig, was Jarvis über Thies wissen soll.
+- Im Anschluss-Block bekommen Notizen eine eigene Tabelle; die Werkzeug-Namen bleiben.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css

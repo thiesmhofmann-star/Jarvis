@@ -45,6 +45,7 @@ describe("Registry", () => {
       "kalender-demo",
       "aufgaben-demo",
       "posteingang-demo",
+      "notizen-demo",
     ]);
     expect(
       werkzeuge.map((w) => [w.modulId, w.name, w.werkzeug.effect]),
@@ -64,6 +65,9 @@ describe("Registry", () => {
       ["posteingang-demo", "mail_lesen", "read"],
       ["posteingang-demo", "antwort_entwurf_anlegen", "write"],
       ["posteingang-demo", "entwuerfe_anzeigen", "read"],
+      ["notizen-demo", "notizen_anzeigen", "read"],
+      ["notizen-demo", "notiz_anlegen", "write"],
+      ["notizen-demo", "notiz_loeschen", "write"],
     ]);
     const namen = werkzeuge.map((w) => w.name);
     expect(new Set(namen).size).toBe(namen.length);

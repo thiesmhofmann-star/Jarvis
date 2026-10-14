@@ -3,7 +3,7 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket D – Posteingang im Demo-Modus (auf Ticket 9D, A, B und C). Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt drei Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen, eine Aufgabenliste mit Fristen und einen Posteingang. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket E – Notizen im Demo-Modus (auf Ticket 9D, A, B, C und D). Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt vier Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen, eine Aufgabenliste mit Fristen, einen Posteingang und Notizen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
 
 ## Demo-Modus ausprobieren
 
@@ -26,6 +26,7 @@ Im Bereich „Jarvis“ zum Beispiel:
 - Aufgaben pflegen: „Paket zur Post hat Zeit bis Montag“, „Steuer hat keine Frist mehr“, „Lösch die Aufgabe Urlaubsfotos“, „Was habe ich erledigt?“, „Paket ist doch nicht erledigt“ → jeweils mit Freigabe-Karte (außer der Liste).
 - „Was ist neu im Posteingang?“, „Zeig die Mail von der Hausverwaltung“, „Was schreibt Lena?“ → erfundene Mails lesen.
 - „Antworte der Hausverwaltung: Donnerstag passt, danke!“ → Karte „Antwort-Entwurf speichern“. Erst „Freigeben“ legt den Entwurf ab; gesendet wird nie etwas. „Meine Entwürfe“ zeigt sie.
+- „Notiz: Geschenkidee für Mama – Kochbuch“ → Karte „Notiz anlegen“. „Meine Notizen“, „Notizen zu Kochbuch“, „Lösch die Notiz Kochbuch“.
 - Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
 
 Unter „Einstellungen“ stehen die aktiven Module.
@@ -45,7 +46,7 @@ Nach dem Neuladen ist alles wieder auf Anfang.
 - **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
 - **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
 
-Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine), 17 (Tagesüberblick), 18 (Dauer, Titel, Datum), 19 (Aufgaben pflegen) und 20 (Posteingang).
+Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine), 17 (Tagesüberblick), 18 (Dauer, Titel, Datum), 19 (Aufgaben pflegen), 20 (Posteingang) und 21 (Notizen).
 
 ## Lokal starten
 

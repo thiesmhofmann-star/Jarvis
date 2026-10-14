@@ -3,7 +3,7 @@ import { type DemoRegel, type WerkzeugSchritt, sage } from "./regel";
 import { demoRegeln } from "./regeln";
 
 export const DEMO_ANTWORT =
-  "Das kann ich im Demo-Modus noch nicht. Gerade antworte ich mit vorbereiteten Texten und kenne nur den Demo-Kalender, die Demo-Aufgaben und den Demo-Posteingang. Probier zum Beispiel „Wie sieht mein Tag aus?“, „Trag Zahnarzt Freitag 10 Uhr ein“, „Verschieb Laufen im Park auf 19 Uhr“, „Neue Aufgabe: Steuererklärung abgeben bis Freitag“ oder „Was ist neu im Posteingang?“.";
+  "Das kann ich im Demo-Modus noch nicht. Gerade antworte ich mit vorbereiteten Texten und kenne nur den Demo-Kalender, die Demo-Aufgaben, den Demo-Posteingang und die Demo-Notizen. Probier zum Beispiel „Wie sieht mein Tag aus?“, „Trag Zahnarzt Freitag 10 Uhr ein“, „Verschieb Laufen im Park auf 19 Uhr“, „Neue Aufgabe: Steuererklärung abgeben bis Freitag“ oder „Was ist neu im Posteingang?“.";
 
 /** Letzte Nachricht von Thies und die Werkzeug-Schritte, die seitdem gelaufen sind. */
 function seitLetzterNachricht(verlauf: readonly Nachricht[]) {
