@@ -324,6 +324,28 @@ Das Demo-Gehirn versteht mehr Sätze; die Werkzeuge bleiben unverändert (`termi
 - Mehreres in einem Satz geht: „Verschieb Laufen im Park auf 19 Uhr, es dauert 90 Minuten“.
 - Fragen („Wie lange dauert Training?“, „Wie heißt …?“) und Sätze wie „Das heißt, …“ sind keine Änderungen.
 
+## 19. Aufgaben pflegen im Demo-Modus (Ticket C)
+Die Demo-Aufgabenliste lässt sich jetzt pflegen. Alles Ändernde läuft über die Schutzschicht mit Freigabe-Karte.
+
+**Neue und erweiterte Werkzeuge im Modul `aufgaben-demo`**
+| Werkzeug | Art | Was es tut |
+|---|---|---|
+| `aufgaben_anzeigen` | lesen | neu mit `status`: `offen` (Standard), `erledigt` oder `alle` |
+| `aufgabe_aendern` | schreiben | Titel und/oder Frist einer offenen Aufgabe; `frist: null` entfernt die Frist; mindestens eine wirksame Änderung |
+| `aufgabe_loeschen` | schreiben | entfernt eine Aufgabe (offen oder erledigt) von der Liste |
+| `aufgabe_wieder_oeffnen` | schreiben | setzt eine erledigte Aufgabe wieder auf offen |
+
+- Karten: „Aufgabe ändern“ mit „Bisher“ und „Neu“ (Frist, bei neuem Titel auch der Titel), „Aufgabe löschen“ mit Stand (offen/erledigt), „Aufgabe wieder öffnen“.
+- Fehler auf Deutsch: unbekannte ID, schon erledigt (beim Ändern), noch offen (beim Wieder-Öffnen), keine oder keine wirksame Änderung.
+
+**Demo-Gehirn** (`aufgaben-pflege-regeln.ts`, alle in zwei Schritten: erst lesen, dann über die ID)
+- Frist: „Steuererklärung hat Zeit bis Montag“, „Verschieb die Frist für Steuer auf den 20.10.“, „Steuer hat keine Frist mehr“.
+- Titel: „Benenne die Aufgabe Urlaubsfotos um in Fotobuch gestalten“ (mit dem Wort „Aufgabe“; ohne bleibt es ein Termin).
+- Löschen: „Lösch die Aufgabe …“, „Streich … von der Liste“. Ohne „Aufgabe“ oder „Liste“ bleibt „Lösch …“ ein Termin.
+- „Was habe ich erledigt?“ → erledigte Aufgaben. „… ist doch nicht erledigt“, „Öffne … wieder“ → wieder öffnen.
+- Diese Regeln stehen in `regeln.ts` vor dem Abhaken; „Neue Aufgabe: …“ bleibt immer Anlegen.
+- Im Anschluss-Block werden daraus Tabellen-Operationen im Modul To-dos & Fristen; die Werkzeug-Namen bleiben.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css

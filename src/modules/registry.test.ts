@@ -56,6 +56,9 @@ describe("Registry", () => {
       ["aufgaben-demo", "aufgaben_anzeigen", "read"],
       ["aufgaben-demo", "aufgabe_anlegen", "write"],
       ["aufgaben-demo", "aufgabe_erledigen", "write"],
+      ["aufgaben-demo", "aufgabe_aendern", "write"],
+      ["aufgaben-demo", "aufgabe_loeschen", "write"],
+      ["aufgaben-demo", "aufgabe_wieder_oeffnen", "write"],
     ]);
     const namen = werkzeuge.map((w) => w.name);
     expect(new Set(namen).size).toBe(namen.length);

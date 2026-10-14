@@ -1,4 +1,10 @@
 import {
+  aufgabeAendern,
+  aufgabeLoeschen,
+  aufgabeWiederOeffnen,
+  erledigteAnzeigen,
+} from "./aufgaben-pflege-regeln";
+import {
   aufgabeAnlegen,
   aufgabeErledigen,
   aufgabenAnzeigen,
@@ -15,6 +21,8 @@ import {
 /**
  * Alle Regeln des Demo-Gehirns. Die Reihenfolge zählt, die erste passende
  * gewinnt:
+ * - Aufgaben pflegen zuerst: „Frist“ und „Aufgabe … löschen“ sind eindeutig,
+ *   „Was habe ich erledigt?“ und „… ist doch nicht erledigt“ vor dem Abhaken,
  * - „… ist erledigt“ vor allem anderen,
  * - „Neue Aufgabe …“ vor „Trag … ein“ (Aufgabe statt Termin),
  * - „Trag einen Termin ein“ vor „Termine“,
@@ -24,6 +32,10 @@ import {
  * - „Was ist fällig?“ vor „Was steht an?“.
  */
 export const demoRegeln: readonly DemoRegel[] = [
+  aufgabeAendern,
+  aufgabeLoeschen,
+  erledigteAnzeigen,
+  aufgabeWiederOeffnen,
   aufgabeErledigen,
   aufgabeAnlegen,
   terminAnlegen,

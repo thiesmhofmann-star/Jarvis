@@ -4,6 +4,7 @@ import type {
   AufgabenAnzeigenErgebnis,
 } from "@/modules/aufgaben-demo";
 import { berlinDatum, formatiereTag } from "@/lib/zeit";
+import type { GehirnAntwort } from "../gehirn";
 import { alsTitel, type DemoRegel, rufe, sage } from "./regel";
 import {
   findeDieseWoche,
@@ -18,7 +19,7 @@ import {
 const BEISPIEL_NEU = "„Neue Aufgabe: Steuererklärung abgeben bis Freitag“";
 
 /** Eine Frist als Tag: „bis Freitag“, „morgen“, „diese Woche“ … */
-function findeFrist(w: Woerter, jetzt: Date) {
+export function findeFrist(w: Woerter, jetzt: Date) {
   const tag = findeTag(w, jetzt);
   if (tag) {
     // „bis Freitag“, „bis zum Freitag“, „für Freitag“
@@ -238,6 +239,35 @@ function nennung(a: AufgabeAnsicht) {
 }
 
 /**
+ * Wählt aus gelesenen Aufgaben die gemeinte: alle Suchwörter im Titel, ein
+ * genau passender Titel gewinnt. Passt keine, kommt `keine`; passen mehrere,
+ * fragt Jarvis nach und nennt sie.
+ */
+export function waehleAufgabe(
+  aufgaben: AufgabeAnsicht[],
+  such: { klein: string[] },
+  texte: { keine: string; beispiel: (titel: string) => string },
+): { aufgabe: AufgabeAnsicht } | { antwort: GehirnAntwort } {
+  const treffer = aufgaben.filter((a) =>
+    such.klein.every((s) => a.titel.toLowerCase().includes(s)),
+  );
+  const genau = treffer.filter(
+    (a) => a.titel.toLowerCase() === such.klein.join(" "),
+  );
+  const auswahl = genau.length === 1 ? genau : treffer;
+
+  if (auswahl.length === 0) return { antwort: sage(texte.keine) };
+  if (auswahl.length > 1) {
+    return {
+      antwort: sage(
+        `Dazu passen mehrere Aufgaben: ${auswahl.map(nennung).join(", ")}. Welche meinst du? Sag es mir bitte genauer, zum Beispiel „${texte.beispiel(auswahl[0]!.titel)}“.`,
+      ),
+    };
+  }
+  return { aufgabe: auswahl[0]! };
+}
+
+/**
  * Abhaken in zwei Schritten, genau wie später Claude: erst die offenen
  * Aufgaben lesen, dann die passende auswählen und über ihre ID abhaken.
  */
@@ -264,25 +294,12 @@ export const aufgabeErledigen: DemoRegel = {
       }
       const { aufgaben } = ausgang.ergebnis as AufgabenAnzeigenErgebnis;
       const such = suchwoerter(text);
-      const treffer = aufgaben.filter((a) =>
-        such.klein.every((s) => a.titel.toLowerCase().includes(s)),
-      );
-      const genau = treffer.filter(
-        (a) => a.titel.toLowerCase() === such.klein.join(" "),
-      );
-      const auswahl = genau.length === 1 ? genau : treffer;
-
-      if (auswahl.length === 0) {
-        return sage(
-          `Ich finde keine offene Demo-Aufgabe zu „${such.anzeige}“. Mit „Meine Aufgaben“ zeige ich dir alle offenen.`,
-        );
-      }
-      if (auswahl.length > 1) {
-        return sage(
-          `Dazu passen mehrere Aufgaben: ${auswahl.map(nennung).join(", ")}. Welche meinst du? Sag es mir bitte genauer, zum Beispiel „${auswahl[0]!.titel} ist erledigt“.`,
-        );
-      }
-      return rufe("aufgabe_erledigen", { id: auswahl[0]!.id });
+      const wahl = waehleAufgabe(aufgaben, such, {
+        keine: `Ich finde keine offene Demo-Aufgabe zu „${such.anzeige}“. Mit „Meine Aufgaben“ zeige ich dir alle offenen.`,
+        beispiel: (titel) => `${titel} ist erledigt`,
+      });
+      if ("antwort" in wahl) return wahl.antwort;
+      return rufe("aufgabe_erledigen", { id: wahl.aufgabe.id });
     }
 
     if (ausgang.art === "abgelehnt") {
