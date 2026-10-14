@@ -133,6 +133,7 @@ const aufgabeErledigen: WriteTool<typeof aufgabeErledigenEingabe> = {
     // Erneut prüfen: Zwischen Vorschau und Freigabe kann sich etwas geändert haben.
     const aufgabe = offeneAufgabe(ctx.nutzerId, ctx.jetzt, id);
     aufgabe.erledigt = true;
+    aufgabe.erledigtAm = ctx.jetzt.toISOString();
     return { aufgabe } satisfies AufgabeErgebnis;
   },
 };
@@ -273,6 +274,7 @@ const aufgabeWiederOeffnen: WriteTool<typeof idEingabe> = {
   async execute({ id }, ctx) {
     const aufgabe = erledigteAufgabe(ctx.nutzerId, ctx.jetzt, id);
     aufgabe.erledigt = false;
+    delete aufgabe.erledigtAm;
     return { aufgabe } satisfies AufgabeErgebnis;
   },
 };

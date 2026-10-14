@@ -81,6 +81,8 @@ describe("Demo-Gehirn: Tagesüberblick", () => {
         "Fällige Aufgaben bis heute (2):",
         "• Bibliotheksbuch zurückgeben – überfällig (Frist war Donnerstag, 8. Oktober)",
         "• Paket zur Post bringen – fällig heute",
+        "",
+        "Posteingang: 2 neue Mails von heute.",
       ].join("\n"),
     );
   });
@@ -92,5 +94,72 @@ describe("Demo-Gehirn: Tagesüberblick", () => {
     expect(antwort).toContain("Termine: keine.");
     expect(antwort).toContain("Fällige Aufgaben bis Montag, 12. Oktober (2):");
     expect(antwort).not.toContain("Guten Morgen");
+    // Neue Mails nur im Überblick für heute
+    expect(antwort).not.toContain("Posteingang");
+  });
+});
+
+/** Ein Gespräch mit mehreren Nachrichten in derselben Sitzung */
+function sitzung() {
+  const chat = erstelleChat({
+    gehirn: erstelleDemoGehirn(),
+    schutzschicht: erstelleSchutzschicht({
+      findeWerkzeug,
+      speicher: aktionenImArbeitsspeicher(),
+    }),
+    werkzeuge: registriert,
+    gespraeche: gespraecheImArbeitsspeicher(),
+  });
+  const c = { nutzerId: crypto.randomUUID(), jetzt };
+  const text = (e: { art: string; text?: string }[]) =>
+    e.map((x) => (x.art === "jarvis" ? x.text : "")).join("\n");
+  return {
+    frage: async (satz: string) => text(await chat.sende(satz, c)),
+    abhaken: async (satz: string) => {
+      const [karte] = await chat.sende(satz, c);
+      if (karte?.art !== "freigabe") throw new Error("Karte erwartet");
+      await chat.entscheide(karte.aktion.id, "freigeben", c);
+    },
+  };
+}
+
+describe("Demo-Gehirn: Abendrückblick", () => {
+  it("„Wie war mein Tag?“: erledigt, heute, morgen, offen", async () => {
+    const s = sitzung();
+    await s.abhaken("Paket ist erledigt");
+
+    expect(await s.frage("Wie war mein Tag?")).toBe(
+      [
+        "Dein Abendrückblick für heute, Samstag, 10. Oktober:",
+        "",
+        "Heute erledigt (1):",
+        "• Paket zur Post bringen",
+        "",
+        "Heute im Kalender (4):",
+        "• 09:00–09:30 Uhr: Team-Besprechung",
+        "• 12:30–13:30 Uhr: Mittagspause",
+        "• 18:00–19:00 Uhr: Laufen im Park",
+        "• 20:00–21:30 Uhr: Training (jede Woche)",
+        "",
+        "Morgen, Sonntag, 11. Oktober (1):",
+        "• 10:00–11:00 Uhr: Yoga (jede Woche)",
+        "",
+        "Offen bis morgen (1):",
+        "• Bibliotheksbuch zurückgeben – überfällig (Frist war Donnerstag, 8. Oktober)",
+        "Dazu 2 weitere offene Aufgaben mit späterer oder ohne Frist.",
+      ].join("\n"),
+    );
+  });
+
+  it("„Abendrückblick“ ohne Erledigtes", async () => {
+    const antwort = await sitzung().frage("Abendrückblick");
+    expect(antwort).toContain("Heute erledigt: nichts abgehakt.");
+    expect(antwort).toContain("Offen bis morgen (2):");
+  });
+
+  it("„Was ist noch nicht erledigt?“ zeigt die offenen Aufgaben", async () => {
+    expect(await sitzung().frage("Was ist noch nicht erledigt?")).toContain(
+      "Du hast 4 offene Demo-Aufgaben:",
+    );
   });
 });
