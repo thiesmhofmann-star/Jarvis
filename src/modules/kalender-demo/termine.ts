@@ -54,19 +54,31 @@ function befuelle(kalender: Kalender, jetzt: Date) {
     termin("Mittagspause", [12, 30], [13, 30]),
     termin("Laufen im Park", [18, 0], [19, 0]),
   );
-  // Ein Dauertermin, der heute stattfindet und schon seit drei Wochen läuft.
-  // So gibt es frühere Vorkommen, die „ab diesem Termin immer“ nicht ändert.
-  kalender.serien.push({
+  const serie = (
+    titel: string,
+    startTag: string,
+    [stunde, minute]: [number, number],
+    dauerMinuten: number,
+  ): Serie => ({
     id: crypto.randomUUID(),
-    titel: "Training",
-    startTag: tagePlus(heute, -21),
-    stunde: 20,
-    minute: 0,
-    dauerMinuten: 90,
+    titel,
+    startTag,
+    stunde,
+    minute,
+    dauerMinuten,
     ausnahmen: new Set(),
     abweichungen: new Map(),
     demo: true,
   });
+  kalender.serien.push(
+    // Findet heute statt und läuft schon seit drei Wochen. So gibt es frühere
+    // Vorkommen, die „ab diesem Termin immer“ nicht ändert.
+    serie("Training", tagePlus(heute, -21), [20, 0], 90),
+    // Zwei weitere feste Termine an anderen Wochentagen, damit sich das
+    // Durchgehen der Dauertermine lohnt (Ticket F). Nie heute, nie übermorgen.
+    serie("Yoga", tagePlus(heute, -13), [10, 0], 60),
+    serie("Gitarrenunterricht", tagePlus(heute, -2), [17, 0], 45),
+  );
 }
 
 // Jede Sitzung bekommt ihren eigenen Demo-Kalender im Arbeitsspeicher.

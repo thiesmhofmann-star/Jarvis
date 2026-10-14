@@ -21,7 +21,7 @@ test("„Was ist neu im Posteingang?“ und eine Mail lesen", async ({ page }) =
     .getByRole("button", { name: "„Was ist neu im Posteingang?“" })
     .click();
   await expect(letzteAntwort(page)).toContainText(
-    "Im Demo-Posteingang liegen 4 Mails",
+    "Im Demo-Posteingang liegen 8 Mails",
   );
   await expect(letzteAntwort(page)).toContainText(
     "Hausverwaltung Sonnenhof: Wartung der Heizung am Donnerstag",
@@ -60,4 +60,21 @@ test("Antwort-Entwurf: Karte, Freigeben, nichts gesendet; Ablehnen speichert nic
 
   await schreibe(page, "Meine Entwürfe");
   await expect(letzteAntwort(page)).toContainText("liegt 1 Entwurf");
+});
+
+test("„Was ist heute wichtig in meinen Mails?“ und „Fass mir meine Mails zusammen“ mit Grund", async ({
+  page,
+}) => {
+  await schreibe(page, "Was ist heute wichtig in meinen Mails?");
+  await expect(letzteAntwort(page)).toContainText(
+    "Heute brauchen dich 3 Mails:",
+  );
+  await expect(letzteAntwort(page)).toContainText(
+    "Grund: Die Hausverwaltung fragt, ob der Termin passt",
+  );
+
+  await schreibe(page, "Fass mir meine Mails zusammen");
+  await expect(letzteAntwort(page)).toContainText("Braucht dich heute (3):");
+  await expect(letzteAntwort(page)).toContainText("Kann warten (3):");
+  await expect(letzteAntwort(page)).toContainText("Egal (2):");
 });

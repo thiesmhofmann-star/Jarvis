@@ -2,7 +2,7 @@ import { z } from "zod";
 import { berlinDatum, formatiereWochentag, tagePlus } from "@/lib/zeit";
 import type { JarvisModule, ReadTool, WriteTool } from "../vertrag";
 import { pflegeWerkzeuge } from "./pflegen";
-import { neueSerie, vorkommen } from "./serien";
+import { neueSerie, vorkommen, vorkommenZwischen } from "./serien";
 import {
   eintraegeZwischen,
   kalenderVon,
@@ -86,6 +86,56 @@ export type TermineSuchenErgebnis = {
   von: string;
   bis: string;
   termine: TerminAnsicht[];
+};
+
+/** Ein Dauertermin mit seinem Rhythmus und dem nächsten Vorkommen ab heute */
+export type DauerterminAnsicht = {
+  id: string;
+  titel: string;
+  /** Wochentag des Rhythmus, z. B. „Samstag“ */
+  wochentag: string;
+  /** Beginn im Rhythmus, z. B. „20:00“ (Berliner Zeit) */
+  uhrzeit: string;
+  dauerMinuten: number;
+  /** Nächstes Vorkommen ab heute (heute zählt mit) */
+  naechstes: TerminAnsicht;
+};
+
+export type DauertermineAnzeigenErgebnis = {
+  dauertermine: DauerterminAnsicht[];
+};
+
+const keineEingabe = z.object({});
+
+const dauertermineAnzeigen: ReadTool<typeof keineEingabe> = {
+  description:
+    "Liefert alle Dauertermine mit Wochentag, Uhrzeit, Dauer und dem nächsten Vorkommen ab heute, nach dem nächsten Vorkommen sortiert. Beendete Dauertermine fehlen.",
+  effect: "read",
+  input: keineEingabe,
+  async execute(_eingabe, ctx) {
+    const heute = berlinDatum(ctx.jetzt);
+    const dauertermine = kalenderVon(ctx.nutzerId, ctx.jetzt)
+      .serien.flatMap((serie): DauerterminAnsicht[] => {
+        const [naechstes] = vorkommenZwischen(
+          serie,
+          heute,
+          tagePlus(heute, 366),
+        ).sort((a, b) => a.beginn.localeCompare(b.beginn));
+        if (!naechstes) return [];
+        return [
+          {
+            id: serie.id,
+            titel: serie.titel,
+            wochentag: formatiereWochentag(serie.startTag),
+            uhrzeit: `${String(serie.stunde).padStart(2, "0")}:${String(serie.minute).padStart(2, "0")}`,
+            dauerMinuten: serie.dauerMinuten,
+            naechstes,
+          },
+        ];
+      })
+      .sort((a, b) => a.naechstes.beginn.localeCompare(b.naechstes.beginn));
+    return { dauertermine } satisfies DauertermineAnzeigenErgebnis;
+  },
 };
 
 // ---------- Anlegen ----------
@@ -172,6 +222,7 @@ export const kalenderDemo: JarvisModule = {
   tools: {
     termine_am_tag: termineAmTag,
     termine_suchen: termineSuchen,
+    dauertermine_anzeigen: dauertermineAnzeigen,
     termin_anlegen: terminAnlegen,
     ...pflegeWerkzeuge,
   },

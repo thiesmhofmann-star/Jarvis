@@ -46,11 +46,15 @@ describe("Posteingang im Chat", () => {
   it("„Was ist neu im Posteingang?“ listet die Mails, neueste zuerst", async () => {
     expect(await neueSitzung().frage("Was ist neu im Posteingang?")).toBe(
       [
-        "Im Demo-Posteingang liegen 4 Mails, die neueste zuerst:",
-        "• heute, 07:45 – Hausverwaltung Sonnenhof: Wartung der Heizung am Donnerstag",
+        "Im Demo-Posteingang liegen 8 Mails, die neueste zuerst:",
+        "• heute, 07:45 – Hausverwaltung Sonnenhof: Wartung der Heizung am Donnerstag (braucht dich heute)",
         "• heute, 07:10 – Fahrradladen Speiche: Dein Fahrrad ist fertig",
-        "• gestern, 17:40 – Lena Berger: Unterlagen für Montag",
-        "• Donnerstag, 8. Oktober – Stadtbibliothek: Erinnerung: Leihfrist abgelaufen",
+        "• heute, 06:05 – Wochenmarkt Neustadt: Kürbiswochen auf dem Markt",
+        "• gestern, 22:15 – Gewinnspiel-Team: Sie haben gewonnen!!!",
+        "• gestern, 17:40 – Lena Berger: Unterlagen für Montag (braucht dich heute)",
+        "• gestern, 09:30 – Praxis am Markt: Ihr Kontrolltermin",
+        "• Donnerstag, 8. Oktober – Stadtbibliothek: Erinnerung: Leihfrist abgelaufen (braucht dich heute)",
+        "• Mittwoch, 7. Oktober – Stadtwerke: Ihr Abschlag für Strom",
         "",
         "Mit „Zeig die Mail von …“ lese ich dir eine vor.",
       ].join("\n"),
@@ -66,6 +70,9 @@ describe("Posteingang im Chat", () => {
       "Mail von Hausverwaltung Sonnenhof <service@hausverwaltung-sonnenhof.example>, heute, 07:45",
     );
     expect(antwort).toContain("Betreff: Wartung der Heizung am Donnerstag");
+    expect(antwort).toContain(
+      "Einordnung: braucht dich heute. Grund: Die Hausverwaltung fragt, ob der Termin passt, und wartet auf deine Antwort.",
+    );
     expect(antwort).toContain("Passt Ihnen der Termin?");
     expect(antwort).toContain("sende nichts");
   });
@@ -129,5 +136,40 @@ describe("Posteingang im Chat", () => {
       (await s.karte("Trag Mails beantworten Freitag 10 Uhr ein")).vorschau
         .titel,
     ).toBe("Termin anlegen");
+  });
+
+  it("„Was ist heute wichtig in meinen Mails?“ nennt nur, was dich heute braucht, mit Grund", async () => {
+    expect(
+      await neueSitzung().frage("Was ist heute wichtig in meinen Mails?"),
+    ).toBe(
+      [
+        "Heute brauchen dich 3 Mails:",
+        "• Hausverwaltung Sonnenhof: Heizungswartung am Donnerstag ab 8 Uhr, bitte bestätigen.",
+        "  Grund: Die Hausverwaltung fragt, ob der Termin passt, und wartet auf deine Antwort.",
+        "• Lena Berger: Bittet um die Unterlagen für Montag, bis Freitag.",
+        "  Grund: Lena braucht die Unterlagen bis Freitag, und am Montag ist schon die Besprechung.",
+        "• Stadtbibliothek: Buch überfällig, bitte zurückgeben oder verlängern.",
+        "  Grund: Die Leihfrist ist schon abgelaufen; je länger das Buch liegt, desto höher die Gebühr.",
+        "",
+        "Der Rest kann warten (3) oder ist egal (2). Mit „Fass mir meine Mails zusammen“ siehst du alle.",
+      ].join("\n"),
+    );
+  });
+
+  it("„Fass mir meine Mails zusammen“ ordnet alle ein, jede mit Grund", async () => {
+    const antwort = await neueSitzung().frage("Fass mir meine Mails zusammen");
+
+    expect(antwort).toContain("Dein Demo-Posteingang in Kurzform (8 Mails):");
+    const reihenfolge = [
+      "Braucht dich heute (3):",
+      "Kann warten (3):",
+      "Egal (2):",
+    ].map((t) => antwort.indexOf(t));
+    expect(reihenfolge.every((i) => i >= 0)).toBe(true);
+    expect(reihenfolge).toEqual([...reihenfolge].sort((a, b) => a - b));
+    expect(antwort.match(/ {2}Grund: /g)).toHaveLength(8);
+    expect(antwort).toContain(
+      "• Gewinnspiel-Team: Angeblicher Gewinn, bitte nichts anklicken.\n  Grund: Ein unbekannter Absender verspricht einen Gewinn und will Bankdaten, typisch für Spam.",
+    );
   });
 });

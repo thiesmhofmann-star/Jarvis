@@ -64,7 +64,7 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 | Wöchentliche Dauertermine, Umfang „nur dieses Mal" oder „ab jetzt immer" | „Training ist ab jetzt immer um 19 Uhr" | schreiben | Demo ✓ |
 | Datumsangaben wie „21.10." oder „3. November" | „Trag Zahnarzt am 3.11. um 9 Uhr ein" | – | Demo ✓ |
 | Erinnerung vor einem Termin als Push-Nachricht aufs iPhone | „Erinnere mich eine Stunde vorher" | schreiben | später |
-| Kalender aufräumen: veraltete Dauertermine gemeinsam durchgehen | „Lass uns meine festen Termine durchgehen" | lesen, dann schreiben | Bauplan F |
+| Kalender aufräumen: veraltete Dauertermine gemeinsam durchgehen (`dauertermine_anzeigen`) | „Lass uns meine festen Termine durchgehen" | lesen, dann schreiben | Demo, PR #13 |
 
 **Echte Anbindung:** Google Calendar API. Kalenderdaten nur live lesen, nicht in der Datenbank speichern. Lesen mit `calendar.events.readonly`; Schreiben braucht `calendar.events`, nur mit Freigabe von Thies. „Ab jetzt immer" teilt eine Serie, wie es vermutlich auch Google macht (plausibel, beim echten Modul in der Google-Doku prüfen). Push-Nachrichten und Zeitsteuerung sind technisch noch nicht geprüft.
 
@@ -76,8 +76,8 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 |---|---|---|---|
 | Tagesüberblick auf Anfrage: Termine plus fällige und überfällige Aufgaben | „Wie sieht mein Tag aus?", „Guten Morgen" | lesen | Demo ✓ |
 | Morgen-Briefing, das von selbst kommt | – | lesen | später |
-| Abendrückblick: was war, was steht morgen an, was ist offen | „Abendrückblick", „Wie war mein Tag?" | lesen | Bauplan G |
-| Wichtige Mails im Briefing | – | lesen | Bauplan G und H |
+| Abendrückblick: was war, was steht morgen an, was ist offen | „Abendrückblick", „Wie war mein Tag?" | lesen | Demo, PR #14 |
+| Wichtige Mails im Briefing | – | lesen | Demo, PR #14 (Zahl neuer Mails) und #15 („braucht dich heute") |
 | Eigener Heute-Bildschirm statt nur Chat | – | lesen | Idee (V; Gestaltung durch Thies) |
 
 **Echte Anbindung:** keine eigenen Daten, fasst andere Module zusammen. Für das automatische Briefing müssen Zeitsteuerung und Push auf Vercel Hobby geprüft werden.
@@ -107,8 +107,8 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 |---|---|---|---|
 | Mails anzeigen und eine Mail lesen (`mails_anzeigen`, `mail_lesen`) | „Was ist neu im Posteingang?" | lesen | Demo ✓ |
 | Antwort als Entwurf ablegen (`antwort_entwurf_anlegen`) | „Antworte der Hausverwaltung: Donnerstag passt, danke!" | schreiben | Demo ✓ |
-| Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | Bauplan H (im Demo vorbereitet; echt mit Claude) |
-| Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | Bauplan H (im Demo vorbereitet; echt mit Claude) |
+| Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | Demo, PR #15 (im Demo vorbereitet; echt mit Claude) |
+| Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | Demo, PR #15 (im Demo vorbereitet; echt mit Claude) |
 | Senden, nur nach Freigabe | – | schreiben | später; bewusst noch kein Werkzeug |
 | Termine und Fristen in Mails erkennen und als Termin oder Aufgabe vorschlagen | „Trag den Termin aus der Mail der Hausverwaltung ein" | schreiben | Bauplan I |
 

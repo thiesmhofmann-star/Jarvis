@@ -392,6 +392,30 @@ Ein viertes Demo-Modul: `src/modules/notizen-demo/` plus ein Eintrag in der Regi
 - Abgrenzung zum Gedächtnis (Anschluss-Block): Notizen legt Thies ausdrücklich ab und sieht sie als Liste. Das Gedächtnis merkt sich später selbstständig, was Jarvis über Thies wissen soll.
 - Im Anschluss-Block bekommen Notizen eine eigene Tabelle; die Werkzeug-Namen bleiben.
 
+## 22. Kalender aufräumen im Demo-Modus (Ticket F)
+„Lass uns meine festen Termine durchgehen“ startet einen Durchgang durch alle Dauertermine. Jarvis zeigt je Dauertermin Wochentag, Uhrzeit und nächstes Vorkommen und fragt „Stimmt das noch?“.
+
+- **Antworten:** „passt“ → nächster. Eine Änderung („ab jetzt 19 Uhr“, „ab jetzt mittwochs“, „dauert 2 Stunden“, „heißt jetzt …“) → `termin_aendern` mit Umfang „ab diesem Termin“. „gibt es nicht mehr“ → `termin_absagen` mit Umfang „ab diesem Termin“. Beides wie immer mit Freigabe-Karte; nach „Freigeben“ oder „Ablehnen“ geht es mit dem nächsten weiter. „nein“ → Rückfrage, was nicht mehr stimmt. „Stopp“ → Ende mit Zwischenstand. Am Ende eine Zusammenfassung: geändert, entfernt, unverändert.
+- **Neues Lese-Werkzeug** `dauertermine_anzeigen`: alle Dauertermine mit Wochentag, Uhrzeit, Dauer und nächstem Vorkommen ab heute; beendete fehlen. Später bei Google: `events.list` ohne `singleEvents`, Dauertermine an ihrer Wiederholungsregel erkennen (Belegstufe: plausibel, beim echten Kalender-Modul prüfen).
+- **Startdaten:** Zwei weitere erfundene Dauertermine, „Yoga“ (morgen, 10 Uhr) und „Gitarrenunterricht“ (in fünf Tagen, 17 Uhr). Sie liegen nie heute und nie übermorgen, damit die bisherigen Beispiele gleich bleiben.
+- **Ablauf über mehrere Nachrichten:** Das Demo-Gehirn merkt sich nichts zwischen zwei Nachrichten. Es liest den Stand aus dem Gespräch: aus der Liste, die `dauertermine_anzeigen` geliefert hat, und aus „Fester Termin 2 von 3“ in seiner letzten Frage. Dafür bekommen die Regeln jetzt auch das Gespräch vor der aktuellen Nachricht (`davor`); das betrifft nur das Demo-Gehirn, nicht den Kern. Ein Durchgang läuft nur, solange Jarvis' letzte Nachricht eine Durchgangs-Frage war; eine andere Frage dazwischen beendet ihn. Claude braucht diesen Trick später nicht, es liest das Gespräch selbst.
+
+## 23. Abendrückblick im Demo-Modus (Ticket G)
+- „Abendrückblick“, „Tagesrückblick“, „Wie war mein Tag?“ → eine Antwort mit vier Teilen: heute erledigte Aufgaben, heute im Kalender, morgen im Kalender, was bis morgen offen oder überfällig ist (plus die Zahl der übrigen offenen Aufgaben). Nur lesen.
+- Vier Lese-Schritte nacheinander (`termine_am_tag` heute, `aufgaben_anzeigen` erledigte, `termine_am_tag` morgen, `aufgaben_anzeigen` offene). Das passt genau in die höchstens 5 Schritte je Nachricht (Abschnitt 14).
+- Aufgaben merken sich, wann sie abgehakt wurden (`erledigtAm`); beim Wieder-Öffnen fällt das weg. Nur so weiß Jarvis, was „heute erledigt“ ist.
+- Der Tagesüberblick für heute nennt zusätzlich die Zahl neuer Mails von heute (dritter Lese-Schritt `mails_anzeigen`). Für andere Tage nicht.
+- „Was ist noch nicht erledigt?“ zeigt jetzt die offenen Aufgaben; vorher suchte Jarvis eine Aufgabe dieses Namens (Vorschlag vom Ideen-Parkplatz, mit dem Bauplan umgesetzt).
+
+## 24. Posteingang einordnen im Demo-Modus (Ticket H)
+Jede Mail hat eine **Einordnung** („braucht dich heute“, „kann warten“, „egal“), einen **sichtbaren Grund** in einem Satz und eine **Kurzfassung** in einer Zeile. Ohne sichtbaren Grund entsteht kein Vertrauen in die Einordnung; deshalb zeigt Jarvis ihn überall mit.
+
+- **Im Demo-Modus vorbereitet:** Die drei Angaben stehen fest in den erfundenen Mails (`einordnung`, `grund`, `kurzfassung` in `src/modules/posteingang-demo/mails.ts`); `mails_anzeigen` und `mail_lesen` liefern sie mit. Das Demo-Gehirn ordnet nichts selbst ein.
+- **Im Anschluss-Block übernimmt Claude:** Gmail liefert diese Felder nicht. Claude liest Absender, Betreff und Text und ordnet jede Mail selbst ein, mit Grund und Kurzfassung. Die drei Felder fallen dann aus den Daten weg; die Sätze und die Darstellung im Chat bleiben.
+- **Daten:** jetzt 8 erfundene Mails (alle `.example`): Hausverwaltung, Fahrradladen, Wochenmarkt-Newsletter, ein Spam-Gewinnspiel, eine Kollegin, eine Arztpraxis, Bibliothek, Stadtwerke.
+- **Sätze:** „Was ist heute wichtig in meinen Mails?“ → nur „braucht dich heute“, je mit Kurzfassung und Grund, dazu die Zahl der übrigen. „Fass mir meine Mails zusammen“ → alle Mails nach Einordnung gruppiert, jede mit Kurzfassung und Grund. Die Mail-Liste markiert „(braucht dich heute)“, eine gelesene Mail zeigt Einordnung und Grund.
+- **Tagesüberblick:** nennt nach der Zahl neuer Mails auch die Absender, die dich heute brauchen.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css
