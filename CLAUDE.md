@@ -11,6 +11,7 @@ Thies programmiert nicht selbst. Er gestaltet, prüft und gibt frei; Claude schr
 - Erklärungen, Commit-Beschreibungen in PRs und alle UI-Texte auf Deutsch. Fachbegriffe beim ersten Auftreten in einem Satz erklären.
 - Nach jedem Ticket: kurz erklären, was gebaut wurde und wie Thies es selbst ausprobiert.
 - Planungsquelle ist das App-Board im claude.ai-Projekt „Bauer". Architektur: `docs/architektur.md`. Wer davon abweichen will, klärt das vorher mit Thies.
+- Gesamtbild aller Module: `docs/module.md`. Das ist ein Katalog, kein Bauauftrag: Gebaut wird nur, was ein freigegebenes Ticket verlangt. Nach jedem Modul-Ticket dort die Spalte „Stand" aktualisieren.
 - **Demo-Modus bis zum Anschluss-Block:** Jarvis läuft mit Demo-Gehirn (vorbereitete Antworten statt Claude) und Demo-Kalender (erfundene Termine statt Google). Bis zum Anschluss-Block: keine Pakete für Login, Datenbank oder KI; keine echten persönlichen Daten, weil die App ohne Login öffentlich erreichbar ist; nichts dauerhaft speichern, alles lebt nur im Arbeitsspeicher. Neue Fähigkeiten so bauen, dass später nur Gehirn bzw. Datenquelle getauscht werden (`docs/architektur.md`, Abschnitt 14). Ein neues Modul braucht im Demo-Modus zusätzlich Regeln im Demo-Gehirn (`src/core/assistant/demo-gehirn/`); sie verschwinden mit Claude.
 
 ## Stack
@@ -65,6 +66,7 @@ src/components/          gemeinsame Oberflächen-Bausteine (Tab-Leiste, Seitenra
 src/styles/tokens.css    Design-Tokens
 drizzle/                 erzeugte Migrationen (nicht von Hand ändern)
 docs/architektur.md      Architektur
+docs/module.md           Modul-Katalog: alle geplanten Module mit Funktionen, Herkunft und Stand
 tests/e2e/               Playwright-Tests
 ```
 
