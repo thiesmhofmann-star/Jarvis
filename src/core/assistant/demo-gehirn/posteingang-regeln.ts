@@ -1,4 +1,5 @@
 import type {
+  Einordnung,
   EntwuerfeAnzeigenErgebnis,
   EntwurfErgebnis,
   MailKurz,
@@ -21,6 +22,13 @@ import { zerlege } from "./verstehen";
  */
 
 const NICHT_GELESEN = "Den Demo-Posteingang konnte ich gerade nicht lesen.";
+
+/** Wie die Einordnung im Chat heißt */
+export const EINORDNUNG: Record<Einordnung, string> = {
+  heute: "braucht dich heute",
+  warten: "kann warten",
+  egal: "egal",
+};
 const BEISPIEL_ANTWORT = "„Antworte Hausverwaltung: Donnerstag passt, danke!“";
 
 /** „heute, 07:45“, „gestern, 17:40“ oder „Donnerstag, 8. Oktober“ */
@@ -122,12 +130,81 @@ export const mailsAnzeigen: DemoRegel = {
     const { mails } = ergebnis;
     if (mails.length === 0) return sage("Der Demo-Posteingang ist leer.");
     const zeilen = mails.map(
-      (m) => `• ${wannText(m.empfangen, jetzt)} – ${m.von}: ${m.betreff}`,
+      (m) =>
+        `• ${wannText(m.empfangen, jetzt)} – ${m.von}: ${m.betreff}${m.einordnung === "heute" ? " (braucht dich heute)" : ""}`,
     );
     const anzahl =
       mails.length === 1 ? "liegt 1 Mail" : `liegen ${mails.length} Mails`;
     return sage(
       `Im Demo-Posteingang ${anzahl}, die neueste zuerst:\n${zeilen.join("\n")}\n\nMit „Zeig die Mail von …“ lese ich dir eine vor.`,
+    );
+  },
+};
+
+// ---------- Einordnen und zusammenfassen ----------
+
+/** „• Hausverwaltung Sonnenhof: Kurzfassung“ und darunter der Grund */
+function mitGrund(m: MailKurz) {
+  return `• ${m.von}: ${m.kurzfassung}\n  Grund: ${m.grund}`;
+}
+
+const MAILWORT = / (mail|mails|e-mail|e-mails|emails|posteingang|postfach) /;
+
+/** „Was ist heute wichtig in meinen Mails?“: nur, was dich heute braucht, mit Grund. */
+export const wichtigeMails: DemoRegel = {
+  werkzeuge: ["mails_anzeigen"],
+  erkenne(text) {
+    const satz = ` ${zerlege(text).klein.join(" ")} `;
+    return / wichtig /.test(satz) && MAILWORT.test(satz)
+      ? rufe("mails_anzeigen", {})
+      : null;
+  },
+  weiter(schritt) {
+    const ergebnis = gelesen(schritt);
+    if (!ergebnis) return sage(NICHT_GELESEN);
+    const heute = ergebnis.mails.filter((m) => m.einordnung === "heute");
+    const warten = ergebnis.mails.filter((m) => m.einordnung === "warten");
+    const egal = ergebnis.mails.filter((m) => m.einordnung === "egal");
+    const rest = `Der Rest kann warten (${warten.length}) oder ist egal (${egal.length}). Mit „Fass mir meine Mails zusammen“ siehst du alle.`;
+    if (heute.length === 0) {
+      return sage(`Heute braucht dich keine Mail. ${rest}`);
+    }
+    const anzahl =
+      heute.length === 1
+        ? "braucht dich 1 Mail"
+        : `brauchen dich ${heute.length} Mails`;
+    return sage(
+      `Heute ${anzahl}:\n${heute.map(mitGrund).join("\n")}\n\n${rest}`,
+    );
+  },
+};
+
+/** „Fass mir meine Mails zusammen“: alle Mails in Kurzform, nach Einordnung, mit Grund. */
+export const mailsZusammenfassen: DemoRegel = {
+  werkzeuge: ["mails_anzeigen"],
+  erkenne(text) {
+    const satz = ` ${zerlege(text).klein.join(" ")} `;
+    return / (fass|zusammen|zusammenfassung|kurzfassung|überblick) /.test(
+      satz,
+    ) && MAILWORT.test(satz)
+      ? rufe("mails_anzeigen", {})
+      : null;
+  },
+  weiter(schritt) {
+    const ergebnis = gelesen(schritt);
+    if (!ergebnis) return sage(NICHT_GELESEN);
+    const { mails } = ergebnis;
+    if (mails.length === 0) return sage("Der Demo-Posteingang ist leer.");
+    const gruppen = (["heute", "warten", "egal"] as const)
+      .map((einordnung) => {
+        const gruppe = mails.filter((m) => m.einordnung === einordnung);
+        if (gruppe.length === 0) return null;
+        const titel = EINORDNUNG[einordnung];
+        return `${titel.charAt(0).toUpperCase()}${titel.slice(1)} (${gruppe.length}):\n${gruppe.map(mitGrund).join("\n")}`;
+      })
+      .filter(Boolean);
+    return sage(
+      `Dein Demo-Posteingang in Kurzform (${mails.length} Mails):\n\n${gruppen.join("\n\n")}`,
     );
   },
 };
@@ -161,7 +238,7 @@ export const mailLesen: DemoRegel = {
     if (schritt.ausgang.art !== "ergebnis") return sage(NICHT_GELESEN);
     const { mail } = schritt.ausgang.ergebnis as MailLesenErgebnis;
     return sage(
-      `Mail von ${mail.von} <${mail.adresse}>, ${wannText(mail.empfangen, jetzt)}\nBetreff: ${mail.betreff}\n\n${mail.text}\n\nAntworten kannst du so: „Antworte ${mail.von}: …“. Ich lege dann einen Entwurf an und sende nichts.`,
+      `Mail von ${mail.von} <${mail.adresse}>, ${wannText(mail.empfangen, jetzt)}\nBetreff: ${mail.betreff}\nEinordnung: ${EINORDNUNG[mail.einordnung]}. Grund: ${mail.grund}\n\n${mail.text}\n\nAntworten kannst du so: „Antworte ${mail.von}: …“. Ich lege dann einen Entwurf an und sende nichts.`,
     );
   },
 };

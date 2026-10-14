@@ -77,7 +77,7 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 | Tagesüberblick auf Anfrage: Termine plus fällige und überfällige Aufgaben | „Wie sieht mein Tag aus?", „Guten Morgen" | lesen | Demo ✓ |
 | Morgen-Briefing, das von selbst kommt | – | lesen | später |
 | Abendrückblick: was war, was steht morgen an, was ist offen | „Abendrückblick", „Wie war mein Tag?" | lesen | Demo, PR #14 |
-| Wichtige Mails im Briefing | – | lesen | Zahl neuer Mails: Demo, PR #14; „heute wichtig": Bauplan H |
+| Wichtige Mails im Briefing | – | lesen | Demo, PR #14 (Zahl neuer Mails) und #15 („braucht dich heute") |
 | Eigener Heute-Bildschirm statt nur Chat | – | lesen | Idee (V; Gestaltung durch Thies) |
 
 **Echte Anbindung:** keine eigenen Daten, fasst andere Module zusammen. Für das automatische Briefing müssen Zeitsteuerung und Push auf Vercel Hobby geprüft werden.
@@ -107,8 +107,8 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 |---|---|---|---|
 | Mails anzeigen und eine Mail lesen (`mails_anzeigen`, `mail_lesen`) | „Was ist neu im Posteingang?" | lesen | Demo ✓ |
 | Antwort als Entwurf ablegen (`antwort_entwurf_anlegen`) | „Antworte der Hausverwaltung: Donnerstag passt, danke!" | schreiben | Demo ✓ |
-| Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | Bauplan H (im Demo vorbereitet; echt mit Claude) |
-| Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | Bauplan H (im Demo vorbereitet; echt mit Claude) |
+| Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | Demo, PR #15 (im Demo vorbereitet; echt mit Claude) |
+| Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | Demo, PR #15 (im Demo vorbereitet; echt mit Claude) |
 | Senden, nur nach Freigabe | – | schreiben | später; bewusst noch kein Werkzeug |
 | Termine und Fristen in Mails erkennen und als Termin oder Aufgabe vorschlagen | „Trag den Termin aus der Mail der Hausverwaltung ein" | schreiben | Bauplan I |
 

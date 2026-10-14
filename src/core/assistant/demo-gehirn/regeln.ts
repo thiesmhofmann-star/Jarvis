@@ -16,6 +16,8 @@ import {
   entwuerfeAnzeigen,
   mailLesen,
   mailsAnzeigen,
+  mailsZusammenfassen,
+  wichtigeMails,
 } from "./posteingang-regeln";
 import { kalenderAufraeumen } from "./aufraeum-regeln";
 import type { DemoRegel } from "./regel";
@@ -59,6 +61,8 @@ export const demoRegeln: readonly DemoRegel[] = [
   terminAbsagen,
   terminAendern,
   entwuerfeAnzeigen,
+  wichtigeMails,
+  mailsZusammenfassen,
   mailLesen,
   mailsAnzeigen,
   abendrueckblick,

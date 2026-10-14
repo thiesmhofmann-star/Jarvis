@@ -55,13 +55,18 @@ function verstehUeberblick(text: string, jetzt: Date) {
   return gefragt ? { tag: tag?.datum ?? berlinDatum(jetzt), gruss } : null;
 }
 
-/** „Posteingang: 2 neue Mails von heute.“ */
+/** „Posteingang: 3 neue Mails von heute. Heute brauchen dich: …“ */
 function postTeil({ mails }: MailsAnzeigenErgebnis, heute: string) {
   const neu = mails.filter(
     (m) => berlinDatum(new Date(m.empfangen)) === heute,
   ).length;
-  if (neu === 0) return "Posteingang: keine neuen Mails von heute.";
-  return `Posteingang: ${neu === 1 ? "1 neue Mail" : `${neu} neue Mails`} von heute.`;
+  const neuText =
+    neu === 0
+      ? "Posteingang: keine neuen Mails von heute."
+      : `Posteingang: ${neu === 1 ? "1 neue Mail" : `${neu} neue Mails`} von heute.`;
+  const wichtig = mails.filter((m) => m.einordnung === "heute");
+  if (wichtig.length === 0) return neuText;
+  return `${neuText} Heute brauchen dich: ${wichtig.map((m) => m.von).join(", ")}.`;
 }
 
 export const tagesueberblick: DemoRegel = {

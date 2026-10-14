@@ -19,7 +19,8 @@ test("„Wie sieht mein Tag aus?“ zeigt Termine und fällige Aufgaben in einer
     "Bibliotheksbuch zurückgeben – überfällig",
   );
   await expect(antwort).toContainText("Paket zur Post bringen – fällig heute");
-  await expect(antwort).toContainText("Posteingang: 2 neue Mails von heute.");
+  await expect(antwort).toContainText("Posteingang: 3 neue Mails von heute.");
+  await expect(antwort).toContainText("Heute brauchen dich: Hausverwaltung");
   // Nur lesen: keine Freigabe-Karte
   await expect(page.getByRole("button", { name: "Freigeben" })).toHaveCount(0);
 });

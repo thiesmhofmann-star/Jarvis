@@ -3,7 +3,7 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket G – Abendrückblick im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt vier Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen, eine Aufgabenliste mit Fristen, einen Posteingang und Notizen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket H – Posteingang einordnen im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt vier Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen, eine Aufgabenliste mit Fristen, einen Posteingang und Notizen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
 
 ## Demo-Modus ausprobieren
 
@@ -27,6 +27,7 @@ Im Bereich „Jarvis“ zum Beispiel:
 - „Ablehnen“ ändert in allen Fällen nichts. Gibt es keinen passenden Termin („Verschieb Fliegen lernen auf 10 Uhr“), sagt Jarvis das freundlich.
 - Aufgaben pflegen: „Paket zur Post hat Zeit bis Montag“, „Steuer hat keine Frist mehr“, „Lösch die Aufgabe Urlaubsfotos“, „Was habe ich erledigt?“, „Paket ist doch nicht erledigt“ → jeweils mit Freigabe-Karte (außer der Liste).
 - „Was ist neu im Posteingang?“, „Zeig die Mail von der Hausverwaltung“, „Was schreibt Lena?“ → erfundene Mails lesen.
+- „Was ist heute wichtig in meinen Mails?“ → nur die Mails, die dich heute brauchen, jede mit sichtbarem Grund. „Fass mir meine Mails zusammen“ → alle Mails nach „braucht dich heute“, „kann warten“ und „egal“, jede mit Grund.
 - „Antworte der Hausverwaltung: Donnerstag passt, danke!“ → Karte „Antwort-Entwurf speichern“. Erst „Freigeben“ legt den Entwurf ab; gesendet wird nie etwas. „Meine Entwürfe“ zeigt sie.
 - „Notiz: Geschenkidee für Mama – Kochbuch“ → Karte „Notiz anlegen“. „Meine Notizen“, „Notizen zu Kochbuch“, „Lösch die Notiz Kochbuch“.
 - Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
@@ -48,7 +49,7 @@ Nach dem Neuladen ist alles wieder auf Anfang.
 - **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
 - **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
 
-Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine), 17 (Tagesüberblick), 18 (Dauer, Titel, Datum), 19 (Aufgaben pflegen), 20 (Posteingang), 21 (Notizen), 22 (Kalender aufräumen) und 23 (Abendrückblick).
+Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine), 17 (Tagesüberblick), 18 (Dauer, Titel, Datum), 19 (Aufgaben pflegen), 20 (Posteingang), 21 (Notizen), 22 (Kalender aufräumen), 23 (Abendrückblick) und 24 (Posteingang einordnen).
 
 ## Lokal starten
 

@@ -82,7 +82,7 @@ describe("Demo-Gehirn: Tagesüberblick", () => {
         "• Bibliotheksbuch zurückgeben – überfällig (Frist war Donnerstag, 8. Oktober)",
         "• Paket zur Post bringen – fällig heute",
         "",
-        "Posteingang: 2 neue Mails von heute.",
+        "Posteingang: 3 neue Mails von heute. Heute brauchen dich: Hausverwaltung Sonnenhof, Lena Berger, Stadtbibliothek.",
       ].join("\n"),
     );
   });

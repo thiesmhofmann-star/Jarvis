@@ -21,21 +21,26 @@ async function lies<T>(c: WerkzeugKontext, name: string, eingabe: object) {
 const entwurf = werkzeug.antwort_entwurf_anlegen as WriteTool;
 
 describe("Modul Posteingang (Demo)", () => {
-  it("startet mit vier erfundenen Mails, neueste zuerst, nur .example-Adressen", async () => {
+  it("startet mit acht erfundenen Mails, neueste zuerst, nur .example-Adressen, alle eingeordnet", async () => {
     const { mails } = await lies<MailsAnzeigenErgebnis>(
       ctx(),
       "mails_anzeigen",
       {},
     );
 
-    expect(mails.map((m) => m.von)).toEqual([
-      "Hausverwaltung Sonnenhof",
-      "Fahrradladen Speiche",
-      "Lena Berger",
-      "Stadtbibliothek",
+    expect(mails.map((m) => [m.von, m.einordnung])).toEqual([
+      ["Hausverwaltung Sonnenhof", "heute"],
+      ["Fahrradladen Speiche", "warten"],
+      ["Wochenmarkt Neustadt", "egal"],
+      ["Gewinnspiel-Team", "egal"],
+      ["Lena Berger", "heute"],
+      ["Praxis am Markt", "warten"],
+      ["Stadtbibliothek", "heute"],
+      ["Stadtwerke", "warten"],
     ]);
     expect(mails.every((m) => m.adresse.endsWith(".example"))).toBe(true);
     expect(mails.every((m) => m.demo && m.vorschau.length <= 80)).toBe(true);
+    expect(mails.every((m) => m.grund.length > 20 && m.kurzfassung)).toBe(true);
     expect(mails[0]).not.toHaveProperty("text");
   });
 
