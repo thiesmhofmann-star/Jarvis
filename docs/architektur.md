@@ -346,6 +346,39 @@ Die Demo-Aufgabenliste lässt sich jetzt pflegen. Alles Ändernde läuft über d
 - Diese Regeln stehen in `regeln.ts` vor dem Abhaken; „Neue Aufgabe: …“ bleibt immer Anlegen.
 - Im Anschluss-Block werden daraus Tabellen-Operationen im Modul To-dos & Fristen; die Werkzeug-Namen bleiben.
 
+## 20. Modul Posteingang im Demo-Modus (Ticket D)
+Ein drittes Demo-Modul: neuer Ordner `src/modules/posteingang-demo/` plus ein Eintrag in der Registry; am Kern ändert sich nichts.
+
+**Daten:** Jede Sitzung startet mit vier erfundenen Mails der letzten Tage (Hausverwaltung, Fahrradladen, eine Kollegin, Bibliothek). Alle Adressen enden auf `.example`, eine Endung, die es im Internet nie geben wird. Höchstens 20 Antwort-Entwürfe je Sitzung. Nur im Arbeitsspeicher.
+
+**Werkzeuge**
+| Werkzeug | Art | Was es tut |
+|---|---|---|
+| `mails_anzeigen` | lesen | Mails, neueste zuerst, mit Absender, Betreff und Vorschau (höchstens 80 Zeichen); mit `suche` nur passende (Absender oder Betreff) |
+| `mail_lesen` | lesen | eine Mail mit vollem Text über ihre ID |
+| `antwort_entwurf_anlegen` | schreiben | legt einen Antwort-Entwurf ab; Karte „Antwort-Entwurf speichern“ mit An, Betreff, Text und dem Satz „Gesendet wird nichts.“ |
+| `entwuerfe_anzeigen` | lesen | gespeicherte Entwürfe |
+
+**Es gibt kein Werkzeug zum Senden.** Ein Test prüft das. Senden wäre ein eigenes Ticket und bräuchte Thies' Freigabe.
+
+**Demo-Gehirn** (`posteingang-regeln.ts`)
+- „Was ist neu im Posteingang?“, „Meine Mails“ → Liste.
+- „Zeig die Mail von der Hausverwaltung“, „Was schreibt Lena?“ → zwei Schritte: suchen, dann lesen. Kommen Treffer von mehreren Absendern, fragt Jarvis nach.
+- „Antworte der Hausverwaltung: Donnerstag passt, danke!“ → suchen, dann Entwurf mit Freigabe-Karte. Der Text steht nach dem Doppelpunkt und bleibt unverändert. Ohne Text oder Empfänger fragt Jarvis nach.
+- „Meine Entwürfe“ → Liste der Entwürfe.
+- Sätze mit „Neue Aufgabe: Mail …“ oder „Trag Mails beantworten … ein“ bleiben Aufgabe bzw. Termin.
+
+**So wird es später mit Gmail** (Annahmen, Belegstufe: plausibel; beim Bau des Moduls Posteingang in der Google-Doku prüfen)
+| Demo-Werkzeug | Gmail API |
+|---|---|
+| `mails_anzeigen` | `users.messages.list` mit Suchanfrage `q`, dann Kopfzeilen per `users.messages.get` |
+| `mail_lesen` | `users.messages.get` |
+| `antwort_entwurf_anlegen` | `users.drafts.create` |
+| `entwuerfe_anzeigen` | `users.drafts.list` |
+
+- Dafür bräuchte Jarvis Gmail-Berechtigungen (lesen und Entwürfe anlegen). Sie gelten bei Google als eingeschränkt bzw. sensibel; ein Prüfverfahren ist möglich. **Gmail-Berechtigungen nie ohne Thies' Freigabe** (CLAUDE.md, Fallstricke).
+- Entfällt dann: erfundene Mails, Obergrenze im Arbeitsspeicher, Regeln im Demo-Gehirn. Bleibt: Werkzeug-Namen, Karte, Schutzschicht.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css
@@ -361,6 +394,7 @@ Die Demo-Aufgabenliste lässt sich jetzt pflegen. Alles Ändernde läuft über d
 - Google OAuth Testmodus: https://developers.google.com/health/setup
 - Google Calendar Scopes: https://developers.google.com/calendar/api/auth
 - Google Calendar, Dauertermine (für Abschnitt 16 noch zu prüfen): https://developers.google.com/calendar/api/guides/recurringevents
+- Gmail API und Berechtigungen (für Abschnitt 20 noch zu prüfen): https://developers.google.com/workspace/gmail/api/auth/scopes
 - Neon Zweig `production`, Pooling: https://neon.com/faqs/where-find-database-connection-string
 - Claude-Code-Umgebungen: https://code.claude.com/docs/en/cloud-environments
 - Versionen und Freigabe-Tags (09.10.2026): npm-Registry – https://www.npmjs.com/package/next · https://www.npmjs.com/package/typescript · https://www.npmjs.com/package/typescript-eslint · https://www.npmjs.com/package/ai · https://www.npmjs.com/package/better-auth

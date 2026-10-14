@@ -80,6 +80,25 @@ for (const farbschema of ["light", "dark"] as const) {
       expect(ergebnis.violations).toEqual([]);
     });
 
+    test("Chat mit Karte „Antwort-Entwurf speichern“ ohne Verstöße gegen WCAG 2.2 AA", async ({
+      page,
+    }) => {
+      await page.goto("/");
+      await page
+        .getByLabel("Nachricht an Jarvis")
+        .fill("Antworte der Hausverwaltung: Donnerstag passt, danke!");
+      await page.getByRole("button", { name: "Senden" }).click();
+      await expect(
+        page.getByRole("region", { name: "Antwort-Entwurf speichern" }),
+      ).toBeVisible();
+
+      const ergebnis = await new AxeBuilder({ page })
+        .withTags(wcag22AA)
+        .analyze();
+
+      expect(ergebnis.violations).toEqual([]);
+    });
+
     for (const seite of seiten) {
       test(`${seite.name} ohne Verstöße gegen WCAG 2.2 AA`, async ({
         page,

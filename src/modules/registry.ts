@@ -1,11 +1,13 @@
 import { aufgabenDemo } from "./aufgaben-demo";
 import { kalenderDemo } from "./kalender-demo";
+import { posteingangDemo } from "./posteingang-demo";
 import type { JarvisModule, ModuleTool } from "./vertrag";
 
 /** Alle aktiven Module. Neues Modul = neuer Ordner + ein Eintrag hier. */
 export const registrierteModule: readonly JarvisModule[] = [
   kalenderDemo,
   aufgabenDemo,
+  posteingangDemo,
 ];
 
 export type RegistriertesWerkzeug = {

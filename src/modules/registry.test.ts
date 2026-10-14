@@ -40,10 +40,11 @@ describe("Registry", () => {
     ).toThrow(/doppelt/);
   });
 
-  it("liefert die Werkzeuge beider Demo-Module, Namen eindeutig", () => {
+  it("liefert die Werkzeuge aller Demo-Module, Namen eindeutig", () => {
     expect(registrierteModule.map((m) => m.id)).toEqual([
       "kalender-demo",
       "aufgaben-demo",
+      "posteingang-demo",
     ]);
     expect(
       werkzeuge.map((w) => [w.modulId, w.name, w.werkzeug.effect]),
@@ -59,6 +60,10 @@ describe("Registry", () => {
       ["aufgaben-demo", "aufgabe_aendern", "write"],
       ["aufgaben-demo", "aufgabe_loeschen", "write"],
       ["aufgaben-demo", "aufgabe_wieder_oeffnen", "write"],
+      ["posteingang-demo", "mails_anzeigen", "read"],
+      ["posteingang-demo", "mail_lesen", "read"],
+      ["posteingang-demo", "antwort_entwurf_anlegen", "write"],
+      ["posteingang-demo", "entwuerfe_anzeigen", "read"],
     ]);
     const namen = werkzeuge.map((w) => w.name);
     expect(new Set(namen).size).toBe(namen.length);

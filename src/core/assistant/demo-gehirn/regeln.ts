@@ -10,6 +10,12 @@ import {
   aufgabenAnzeigen,
 } from "./aufgaben-regeln";
 import { terminAnlegen, termineAmTag } from "./kalender-regeln";
+import {
+  antwortEntwurf,
+  entwuerfeAnzeigen,
+  mailLesen,
+  mailsAnzeigen,
+} from "./posteingang-regeln";
 import type { DemoRegel } from "./regel";
 import { tagesueberblick } from "./ueberblick-regeln";
 import {
@@ -21,7 +27,9 @@ import {
 /**
  * Alle Regeln des Demo-Gehirns. Die Reihenfolge zählt, die erste passende
  * gewinnt:
- * - Aufgaben pflegen zuerst: „Frist“ und „Aufgabe … löschen“ sind eindeutig,
+ * - „Antworte …: …“ ganz vorn, der Text darf alles enthalten,
+ * - Mail-Sätze nach den Termin-Sätzen („Trag Mail schreiben … ein“ ist ein Termin),
+ * - Aufgaben pflegen vor dem Abhaken: „Frist“ und „Aufgabe … löschen“ sind eindeutig,
  *   „Was habe ich erledigt?“ und „… ist doch nicht erledigt“ vor dem Abhaken,
  * - „… ist erledigt“ vor allem anderen,
  * - „Neue Aufgabe …“ vor „Trag … ein“ (Aufgabe statt Termin),
@@ -32,6 +40,7 @@ import {
  * - „Was ist fällig?“ vor „Was steht an?“.
  */
 export const demoRegeln: readonly DemoRegel[] = [
+  antwortEntwurf,
   aufgabeAendern,
   aufgabeLoeschen,
   erledigteAnzeigen,
@@ -41,6 +50,9 @@ export const demoRegeln: readonly DemoRegel[] = [
   terminAnlegen,
   terminAbsagen,
   terminAendern,
+  entwuerfeAnzeigen,
+  mailLesen,
+  mailsAnzeigen,
   tagesueberblick,
   aufgabenAnzeigen,
   termineSuchen,
