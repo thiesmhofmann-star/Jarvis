@@ -19,6 +19,7 @@ const BEISPIELE = [
   "Was steht heute an?",
   "Trag Zahnarzt Freitag 10 Uhr ein",
   "Was ist diese Woche fällig?",
+  "Training ist ab jetzt immer um 19 Uhr",
 ];
 
 type Eintrag =

@@ -3,7 +3,7 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket 8D – Aufgaben & Fristen im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt zwei Demo-Module mit erfundenen Daten: einen Kalender und eine Aufgabenliste mit Fristen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket 9D – Termine ändern, absagen und Dauertermine im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt zwei Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen und eine Aufgabenliste mit Fristen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
 
 ## Demo-Modus ausprobieren
 
@@ -14,6 +14,12 @@ Im Bereich „Jarvis“ zum Beispiel:
 - „Neue Aufgabe: Steuererklärung abgeben bis Freitag“ → Freigabe-Karte, nach „Freigeben“ steht die Aufgabe auf der Demo-Liste. Ohne Frist geht es auch („Neue Aufgabe: Fahrrad aufpumpen“).
 - „Was ist diese Woche fällig?“ → offene Aufgaben bis Sonntag, Überfälliges zuerst. „Meine Aufgaben“ → alle offenen.
 - „Steuererklärung ist erledigt“ → Freigabe-Karte „Aufgabe abhaken“; erst „Freigeben“ hakt sie ab. Gibt es keine passende Aufgabe, sagt Jarvis das freundlich.
+- „Verschieb Laufen im Park auf 19 Uhr“ → Freigabe-Karte mit „Bisher“ und „Neu“. Nach „Freigeben“ zeigt „Was steht heute an?“ die neue Zeit.
+- „Training ist ab jetzt immer um 19 Uhr“ → Karte mit „Gilt für: Ab … jede Woche“. Danach ist Training ab heute jede Woche um 19 Uhr, frühere Wochen bleiben.
+- „Training fällt nächste Woche aus“ oder „Sag Training am Samstag ab“ (Training liegt in jeder neuen Sitzung auf dem heutigen Wochentag, 20 Uhr) → Karte „Termin absagen“ mit „Fällt weg: Nur am …“. Danach fehlt nur dieses eine Mal.
+- „Trag jeden Mittwoch 20 Uhr Chorprobe ein“ → Karte „Dauertermin anlegen“ mit „Jede Woche am Mittwoch“.
+- „Wann ist Training?“ → alle Termine mit diesem Titel in den nächsten 30 Tagen. So sieht man, was ausfällt und was wieder da ist.
+- „Ablehnen“ ändert in allen Fällen nichts. Gibt es keinen passenden Termin („Verschieb Fliegen lernen auf 10 Uhr“), sagt Jarvis das freundlich.
 - Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
 
 Unter „Einstellungen“ stehen die aktiven Module.
@@ -33,7 +39,7 @@ Nach dem Neuladen ist alles wieder auf Anfang.
 - **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
 - **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
 
-Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle) und 14 (Kern im Demo-Modus).
+Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben) und 16 (Termine pflegen und Dauertermine).
 
 ## Lokal starten
 

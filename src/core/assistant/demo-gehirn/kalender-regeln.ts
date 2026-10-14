@@ -7,9 +7,15 @@ import {
   berlinZeitpunkt,
   formatiereTag,
   formatiereUhrzeit,
+  formatiereWochentag,
 } from "@/lib/zeit";
 import { type DemoRegel, rufe, sage } from "./regel";
-import { findeTag, findeUhrzeit, zerlege } from "./verstehen";
+import {
+  findeTag,
+  findeUhrzeit,
+  findeWoechentlich,
+  zerlege,
+} from "./verstehen";
 
 /** Regeln für das Modul kalender-demo. */
 
@@ -43,7 +49,7 @@ export const termineAmTag: DemoRegel = {
     }
     const zeilen = termine.map(
       (t) =>
-        `• ${formatiereUhrzeit(new Date(t.beginn))}–${formatiereUhrzeit(new Date(t.ende))} Uhr: ${t.titel}`,
+        `• ${formatiereUhrzeit(new Date(t.beginn))}–${formatiereUhrzeit(new Date(t.ende))} Uhr: ${t.titel}${t.vorkommen ? " (jede Woche)" : ""}`,
     );
     const anzahl =
       termine.length === 1
@@ -83,9 +89,14 @@ export const terminAnlegen: DemoRegel = {
       (/ (leg|lege) /.test(satz) && satz.endsWith(" an "));
     if (!befehl) return null;
 
-    const tag = findeTag(w, jetzt);
+    // „jeden Mittwoch“, „mittwochs“, „jede Woche“: ein Dauertermin
+    const woechentlich = findeWoechentlich(w, jetzt);
+    const tag = woechentlich?.datum
+      ? { datum: woechentlich.datum, positionen: [] }
+      : findeTag(w, jetzt);
     const uhrzeit = findeUhrzeit(w);
     const verbraucht = new Set([
+      ...(woechentlich?.positionen ?? []),
       ...(tag?.positionen ?? []),
       ...(uhrzeit?.positionen ?? []),
     ]);
@@ -117,7 +128,11 @@ export const terminAnlegen: DemoRegel = {
       );
     }
     const beginn = berlinZeitpunkt(tag.datum, uhrzeit.stunde, uhrzeit.minute);
-    return rufe("termin_anlegen", { titel, beginn: beginn.toISOString() });
+    return rufe("termin_anlegen", {
+      titel,
+      beginn: beginn.toISOString(),
+      ...(woechentlich ? { woechentlich: true } : {}),
+    });
   },
   weiter({ ausgang }) {
     if (ausgang.art === "abgelehnt") {
@@ -128,6 +143,11 @@ export const terminAnlegen: DemoRegel = {
     }
     const { termin } = ausgang.ergebnis as TerminAnlegenErgebnis;
     const beginn = new Date(termin.beginn);
+    if (termin.vorkommen) {
+      return sage(
+        `Erledigt: „${termin.titel}“ steht jetzt jede Woche am ${formatiereWochentag(termin.vorkommen)} um ${formatiereUhrzeit(beginn)} Uhr im Demo-Kalender, zum ersten Mal am ${formatiereTag(termin.vorkommen)}.`,
+      );
+    }
     return sage(
       `Erledigt: „${termin.titel}“ steht jetzt am ${formatiereTag(berlinDatum(beginn))}, um ${formatiereUhrzeit(beginn)} Uhr im Demo-Kalender.`,
     );

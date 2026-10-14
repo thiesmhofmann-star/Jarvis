@@ -3,7 +3,7 @@ import { type DemoRegel, sage } from "./regel";
 import { demoRegeln } from "./regeln";
 
 export const DEMO_ANTWORT =
-  "Das kann ich im Demo-Modus noch nicht. Gerade antworte ich mit vorbereiteten Texten und kenne nur den Demo-Kalender und die Demo-Aufgaben. Probier zum Beispiel „Was steht heute an?“, „Trag Zahnarzt Freitag 10 Uhr ein“ oder „Neue Aufgabe: Steuererklärung abgeben bis Freitag“.";
+  "Das kann ich im Demo-Modus noch nicht. Gerade antworte ich mit vorbereiteten Texten und kenne nur den Demo-Kalender und die Demo-Aufgaben. Probier zum Beispiel „Was steht heute an?“, „Trag Zahnarzt Freitag 10 Uhr ein“, „Verschieb Laufen im Park auf 19 Uhr“ oder „Neue Aufgabe: Steuererklärung abgeben bis Freitag“.";
 
 function letzterNutzerText(verlauf: readonly Nachricht[]) {
   for (let i = verlauf.length - 1; i >= 0; i--) {

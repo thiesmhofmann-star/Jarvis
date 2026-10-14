@@ -1,7 +1,21 @@
 import { z } from "zod";
-import { berlinDatum, formatiereTag, formatiereUhrzeit } from "@/lib/zeit";
+import { berlinDatum, formatiereWochentag, tagePlus } from "@/lib/zeit";
 import type { JarvisModule, ReadTool, WriteTool } from "../vertrag";
-import { MAX_TERMINE, termineVon, type Termin } from "./termine";
+import { pflegeWerkzeuge } from "./pflegen";
+import { neueSerie, vorkommen } from "./serien";
+import {
+  eintraegeZwischen,
+  kalenderVon,
+  pruefePlatz,
+  type Termin,
+  type TerminAnsicht,
+} from "./termine";
+import { KALENDER, wannText } from "./texte";
+
+export type { TerminAnsicht, Umfang } from "./termine";
+export type { TerminAbsagenErgebnis, TerminAendernErgebnis } from "./pflegen";
+
+// ---------- Lesen ----------
 
 const termineAmTagEingabe = z.object({
   /** Kalendertag „JJJJ-MM-TT“; ohne Angabe gilt heute. */
@@ -10,19 +24,71 @@ const termineAmTagEingabe = z.object({
 
 const termineAmTag: ReadTool<typeof termineAmTagEingabe> = {
   description:
-    "Liefert die Termine eines Tages aus dem Demo-Kalender. Ohne Tag: heute.",
+    "Liefert die Termine eines Tages aus dem Demo-Kalender, auch Vorkommen von Dauerterminen. Ohne Tag: heute.",
   effect: "read",
   input: termineAmTagEingabe,
   async execute({ tag }, ctx) {
     const datum = tag ?? berlinDatum(ctx.jetzt);
-    const termine = termineVon(ctx.nutzerId, ctx.jetzt)
-      .filter((t) => berlinDatum(new Date(t.beginn)) === datum)
-      .sort((a, b) => a.beginn.localeCompare(b.beginn));
+    const termine = eintraegeZwischen(
+      kalenderVon(ctx.nutzerId, ctx.jetzt),
+      datum,
+      datum,
+    );
     return { datum, termine } satisfies TermineAmTagErgebnis;
   },
 };
 
-export type TermineAmTagErgebnis = { datum: string; termine: Termin[] };
+export type TermineAmTagErgebnis = { datum: string; termine: TerminAnsicht[] };
+
+const termineSuchenEingabe = z.object({
+  /** Wörter, die alle im Titel vorkommen müssen; Groß- und Kleinschreibung egal */
+  text: z.string().trim().min(1).max(100),
+  /** Erster Tag („JJJJ-MM-TT“); ohne Angabe heute */
+  von: z.iso.date().optional(),
+  /** Letzter Tag; ohne Angabe 30 Tage nach dem ersten */
+  bis: z.iso.date().optional(),
+});
+
+/** So viele Tage durchsucht termine_suchen höchstens auf einmal. */
+const MAX_SUCHTAGE = 366;
+
+const termineSuchen: ReadTool<typeof termineSuchenEingabe> = {
+  description:
+    "Sucht Termine im Demo-Kalender, deren Titel alle Wörter aus text enthält. Ohne Zeitraum: heute und die nächsten 30 Tage. Dauertermine erscheinen mit jedem Vorkommen.",
+  effect: "read",
+  input: termineSuchenEingabe,
+  async execute({ text, von, bis }, ctx) {
+    const start = von ?? berlinDatum(ctx.jetzt);
+    const ende = bis ?? tagePlus(start, 30);
+    if (ende < start) {
+      throw new Error("Der Zeitraum endet, bevor er anfängt.");
+    }
+    if (ende > tagePlus(start, MAX_SUCHTAGE)) {
+      throw new Error("Ich suche höchstens ein Jahr auf einmal.");
+    }
+    const woerter = text.toLowerCase().split(/\s+/);
+    const termine = eintraegeZwischen(
+      kalenderVon(ctx.nutzerId, ctx.jetzt),
+      start,
+      ende,
+    ).filter((t) => woerter.every((w) => t.titel.toLowerCase().includes(w)));
+    return {
+      text,
+      von: start,
+      bis: ende,
+      termine,
+    } satisfies TermineSuchenErgebnis;
+  },
+};
+
+export type TermineSuchenErgebnis = {
+  text: string;
+  von: string;
+  bis: string;
+  termine: TerminAnsicht[];
+};
+
+// ---------- Anlegen ----------
 
 const terminAnlegenEingabe = z.object({
   titel: z.string().trim().min(1).max(100),
@@ -33,35 +99,55 @@ const terminAnlegenEingabe = z.object({
     .min(5)
     .max(24 * 60)
     .default(60),
+  /** true: jede Woche am selben Wochentag zur selben Uhrzeit, ohne Ende */
+  woechentlich: z.boolean().default(false),
 });
 
-function wannText(beginn: string) {
-  const zeitpunkt = new Date(beginn);
-  return `${formatiereTag(berlinDatum(zeitpunkt))}, ${formatiereUhrzeit(zeitpunkt)} Uhr`;
-}
-
 const terminAnlegen: WriteTool<typeof terminAnlegenEingabe> = {
-  description: "Legt einen neuen Termin im Demo-Kalender an.",
+  description:
+    "Legt einen neuen Termin im Demo-Kalender an. Mit woechentlich: true als Dauertermin jede Woche am selben Wochentag zur selben Uhrzeit.",
   effect: "write",
   input: terminAnlegenEingabe,
-  async preview({ titel, beginn, dauerMinuten }) {
+  async preview({ titel, beginn, dauerMinuten, woechentlich }) {
+    if (!woechentlich) {
+      return {
+        titel: "Termin anlegen",
+        beschreibung: "Jarvis trägt diesen Termin in deinen Demo-Kalender ein.",
+        daten: [
+          { label: "Was", wert: titel },
+          { label: "Wann", wert: wannText(beginn) },
+          { label: "Dauer", wert: `${dauerMinuten} Minuten` },
+          { label: "Kalender", wert: KALENDER },
+        ],
+      };
+    }
     return {
-      titel: "Termin anlegen",
-      beschreibung: "Jarvis trägt diesen Termin in deinen Demo-Kalender ein.",
+      titel: "Dauertermin anlegen",
+      beschreibung:
+        "Jarvis trägt diesen Termin jede Woche in deinen Demo-Kalender ein.",
       daten: [
         { label: "Was", wert: titel },
-        { label: "Wann", wert: wannText(beginn) },
+        { label: "Wann", wert: `Ab ${wannText(beginn)}` },
+        {
+          label: "Wiederholung",
+          wert: `Jede Woche am ${formatiereWochentag(berlinDatum(new Date(beginn)))}`,
+        },
         { label: "Dauer", wert: `${dauerMinuten} Minuten` },
-        { label: "Kalender", wert: "Demo-Kalender (nur im Arbeitsspeicher)" },
+        { label: "Kalender", wert: KALENDER },
       ],
     };
   },
-  async execute({ titel, beginn, dauerMinuten }, ctx) {
-    const termine = termineVon(ctx.nutzerId, ctx.jetzt);
-    if (termine.length >= MAX_TERMINE) {
-      throw new Error("Der Demo-Kalender ist voll.");
-    }
+  async execute({ titel, beginn, dauerMinuten, woechentlich }, ctx) {
+    const kalender = kalenderVon(ctx.nutzerId, ctx.jetzt);
+    pruefePlatz(kalender);
     const start = new Date(beginn);
+    if (woechentlich) {
+      const serie = neueSerie({ titel, beginn: start, dauerMinuten });
+      kalender.serien.push(serie);
+      return {
+        termin: vorkommen(serie, serie.startTag),
+      } satisfies TerminAnlegenErgebnis;
+    }
     const termin: Termin = {
       id: crypto.randomUUID(),
       titel,
@@ -69,22 +155,24 @@ const terminAnlegen: WriteTool<typeof terminAnlegenEingabe> = {
       ende: new Date(start.getTime() + dauerMinuten * 60_000).toISOString(),
       demo: true,
     };
-    termine.push(termin);
-    return { termin } satisfies TerminAnlegenErgebnis;
+    kalender.termine.push(termin);
+    return { termin: { ...termin } } satisfies TerminAnlegenErgebnis;
   },
 };
 
-export type TerminAnlegenErgebnis = { termin: Termin };
+export type TerminAnlegenErgebnis = { termin: TerminAnsicht };
 
 /** Beispiel-Modul mit erfundenen Terminen. Wird im Anschluss-Block durch den echten Google-Kalender ersetzt. */
 export const kalenderDemo: JarvisModule = {
   id: "kalender-demo",
   name: "Kalender (Demo)",
   description:
-    "Demo-Kalender mit erfundenen Terminen. Liegt nur im Arbeitsspeicher.",
+    "Demo-Kalender mit erfundenen Terminen und Dauerterminen. Liegt nur im Arbeitsspeicher.",
   googleScopes: [],
   tools: {
     termine_am_tag: termineAmTag,
+    termine_suchen: termineSuchen,
     termin_anlegen: terminAnlegen,
+    ...pflegeWerkzeuge,
   },
 };

@@ -60,6 +60,26 @@ for (const farbschema of ["light", "dark"] as const) {
       expect(ergebnis.violations).toEqual([]);
     });
 
+    test("Chat mit Karte „Termin ändern“ (Bisher, Neu, Gilt für) ohne Verstöße gegen WCAG 2.2 AA", async ({
+      page,
+    }) => {
+      await page.goto("/");
+      await page
+        .getByRole("button", {
+          name: "„Training ist ab jetzt immer um 19 Uhr“",
+        })
+        .click();
+      await expect(
+        page.getByRole("region", { name: "Termin ändern" }),
+      ).toContainText("Gilt für:");
+
+      const ergebnis = await new AxeBuilder({ page })
+        .withTags(wcag22AA)
+        .analyze();
+
+      expect(ergebnis.violations).toEqual([]);
+    });
+
     for (const seite of seiten) {
       test(`${seite.name} ohne Verstöße gegen WCAG 2.2 AA`, async ({
         page,

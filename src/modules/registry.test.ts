@@ -49,7 +49,10 @@ describe("Registry", () => {
       werkzeuge.map((w) => [w.modulId, w.name, w.werkzeug.effect]),
     ).toEqual([
       ["kalender-demo", "termine_am_tag", "read"],
+      ["kalender-demo", "termine_suchen", "read"],
       ["kalender-demo", "termin_anlegen", "write"],
+      ["kalender-demo", "termin_aendern", "write"],
+      ["kalender-demo", "termin_absagen", "write"],
       ["aufgaben-demo", "aufgaben_anzeigen", "read"],
       ["aufgaben-demo", "aufgabe_anlegen", "write"],
       ["aufgaben-demo", "aufgabe_erledigen", "write"],

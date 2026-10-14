@@ -32,9 +32,10 @@ describe("Chat im Demo-Modus", () => {
     const eintraege = await neuerChat().sende("Was steht heute an?", ctx());
 
     expect(text(eintraege)).toContain(
-      "Heute, Samstag, 10. Oktober, stehen 3 Termine",
+      "Heute, Samstag, 10. Oktober, stehen 4 Termine",
     );
     expect(text(eintraege)).toContain("09:00–09:30 Uhr: Team-Besprechung");
+    expect(text(eintraege)).toContain("20:00–21:30 Uhr: Training (jede Woche)");
   });
 
   it("trägt einen Termin erst nach Freigabe ein, danach taucht er auf", async () => {
