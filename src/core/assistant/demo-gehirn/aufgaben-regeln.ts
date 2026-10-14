@@ -49,7 +49,7 @@ export const aufgabenAnzeigen: DemoRegel = {
     const w = zerlege(text);
     const satz = w.klein.join(" ");
     const gefragt =
-      /\b(fällig|aufgaben?|to-dos?|todos?|erledigen|zu tun|fristen?)\b/.test(
+      /\b(fällig|aufgaben?|to-dos?|todos?|erledigen|zu tun|fristen?|nicht erledigt|noch offen)\b/.test(
         satz,
       );
     if (!gefragt) return null;
@@ -279,7 +279,8 @@ export const aufgabeErledigen: DemoRegel = {
       / (erledigt|abhaken|abgehakt|geschafft) /.test(satz) ||
       (/ (hak|hake) /.test(satz) && / ab /.test(satz)) ||
       / ist fertig /.test(satz);
-    if (!fertig) return null;
+    // „Was ist noch nicht erledigt?“ fragt nach offenen Aufgaben.
+    if (!fertig || / nicht /.test(satz)) return null;
     if (suchwoerter(text).klein.length === 0) {
       return sage(
         "Welche Aufgabe ist erledigt? Sag es mir zum Beispiel so: „Steuererklärung ist erledigt“.",

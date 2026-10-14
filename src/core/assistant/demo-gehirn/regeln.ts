@@ -19,7 +19,7 @@ import {
 } from "./posteingang-regeln";
 import { kalenderAufraeumen } from "./aufraeum-regeln";
 import type { DemoRegel } from "./regel";
-import { tagesueberblick } from "./ueberblick-regeln";
+import { abendrueckblick, tagesueberblick } from "./ueberblick-regeln";
 import {
   terminAbsagen,
   terminAendern,
@@ -61,6 +61,7 @@ export const demoRegeln: readonly DemoRegel[] = [
   entwuerfeAnzeigen,
   mailLesen,
   mailsAnzeigen,
+  abendrueckblick,
   tagesueberblick,
   aufgabenAnzeigen,
   termineSuchen,

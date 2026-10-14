@@ -76,8 +76,8 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 |---|---|---|---|
 | Tagesüberblick auf Anfrage: Termine plus fällige und überfällige Aufgaben | „Wie sieht mein Tag aus?", „Guten Morgen" | lesen | Demo ✓ |
 | Morgen-Briefing, das von selbst kommt | – | lesen | später |
-| Abendrückblick: was war, was steht morgen an, was ist offen | „Abendrückblick", „Wie war mein Tag?" | lesen | Bauplan G |
-| Wichtige Mails im Briefing | – | lesen | Bauplan G und H |
+| Abendrückblick: was war, was steht morgen an, was ist offen | „Abendrückblick", „Wie war mein Tag?" | lesen | Demo, PR #14 |
+| Wichtige Mails im Briefing | – | lesen | Zahl neuer Mails: Demo, PR #14; „heute wichtig": Bauplan H |
 | Eigener Heute-Bildschirm statt nur Chat | – | lesen | Idee (V; Gestaltung durch Thies) |
 
 **Echte Anbindung:** keine eigenen Daten, fasst andere Module zusammen. Für das automatische Briefing müssen Zeitsteuerung und Push auf Vercel Hobby geprüft werden.

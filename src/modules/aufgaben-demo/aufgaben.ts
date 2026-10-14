@@ -8,6 +8,8 @@ export type Aufgabe = {
   /** Kalendertag „JJJJ-MM-TT“, keine Uhrzeit */
   frist?: string;
   erledigt: boolean;
+  /** Wann abgehakt (ISO-Zeitpunkt); für „Heute erledigt“ im Abendrückblick */
+  erledigtAm?: string;
   demo: true;
 };
 

@@ -400,6 +400,13 @@ Ein viertes Demo-Modul: `src/modules/notizen-demo/` plus ein Eintrag in der Regi
 - **Startdaten:** Zwei weitere erfundene Dauertermine, „Yoga“ (morgen, 10 Uhr) und „Gitarrenunterricht“ (in fünf Tagen, 17 Uhr). Sie liegen nie heute und nie übermorgen, damit die bisherigen Beispiele gleich bleiben.
 - **Ablauf über mehrere Nachrichten:** Das Demo-Gehirn merkt sich nichts zwischen zwei Nachrichten. Es liest den Stand aus dem Gespräch: aus der Liste, die `dauertermine_anzeigen` geliefert hat, und aus „Fester Termin 2 von 3“ in seiner letzten Frage. Dafür bekommen die Regeln jetzt auch das Gespräch vor der aktuellen Nachricht (`davor`); das betrifft nur das Demo-Gehirn, nicht den Kern. Ein Durchgang läuft nur, solange Jarvis' letzte Nachricht eine Durchgangs-Frage war; eine andere Frage dazwischen beendet ihn. Claude braucht diesen Trick später nicht, es liest das Gespräch selbst.
 
+## 23. Abendrückblick im Demo-Modus (Ticket G)
+- „Abendrückblick“, „Tagesrückblick“, „Wie war mein Tag?“ → eine Antwort mit vier Teilen: heute erledigte Aufgaben, heute im Kalender, morgen im Kalender, was bis morgen offen oder überfällig ist (plus die Zahl der übrigen offenen Aufgaben). Nur lesen.
+- Vier Lese-Schritte nacheinander (`termine_am_tag` heute, `aufgaben_anzeigen` erledigte, `termine_am_tag` morgen, `aufgaben_anzeigen` offene). Das passt genau in die höchstens 5 Schritte je Nachricht (Abschnitt 14).
+- Aufgaben merken sich, wann sie abgehakt wurden (`erledigtAm`); beim Wieder-Öffnen fällt das weg. Nur so weiß Jarvis, was „heute erledigt“ ist.
+- Der Tagesüberblick für heute nennt zusätzlich die Zahl neuer Mails von heute (dritter Lese-Schritt `mails_anzeigen`). Für andere Tage nicht.
+- „Was ist noch nicht erledigt?“ zeigt jetzt die offenen Aufgaben; vorher suchte Jarvis eine Aufgabe dieses Namens (Vorschlag vom Ideen-Parkplatz, mit dem Bauplan umgesetzt).
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css
