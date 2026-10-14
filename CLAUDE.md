@@ -6,12 +6,13 @@ Thies programmiert nicht selbst. Er gestaltet, prüft und gibt frei; Claude schr
 
 ## Arbeitsregeln (zwingend)
 - Vor jedem Ticket einen Plan zeigen: was sich ändert, welche Dateien, wie getestet wird. Erst nach Thies' „go" programmieren.
+- **Generelle Freigabe vom 14.10.2026:** Für die Tickets F–L im Bauplan (`docs/module.md`, Abschnitt 6) gilt das „go" als erteilt. Der Reihe nach bauen, den Plan in die PR-Beschreibung schreiben und nicht auf Antwort warten. Die Grenzen dort („Anhalten und Thies fragen") und alle Regeln hier gelten weiter, auch: nie selbst nach `main` zusammenführen.
 - Ohne ausdrückliche Freigabe: kein Deploy in Produktion, keine Migration auf Neon-Branch `production`, kein Löschen von Daten, nichts, was Geld kostet.
 - Neue Ideen nicht still einbauen. Als Vorschlag für den Ideen-Parkplatz im App-Board melden.
 - Erklärungen, Commit-Beschreibungen in PRs und alle UI-Texte auf Deutsch. Fachbegriffe beim ersten Auftreten in einem Satz erklären.
 - Nach jedem Ticket: kurz erklären, was gebaut wurde und wie Thies es selbst ausprobiert.
 - Planungsquelle ist das App-Board im claude.ai-Projekt „Bauer". Architektur: `docs/architektur.md`. Wer davon abweichen will, klärt das vorher mit Thies.
-- Gesamtbild aller Module: `docs/module.md`. Das ist ein Katalog, kein Bauauftrag: Gebaut wird nur, was ein freigegebenes Ticket verlangt. Nach jedem Modul-Ticket dort die Spalte „Stand" aktualisieren.
+- Gesamtbild aller Module: `docs/module.md`. Freigegeben ist nur der Bauplan in Abschnitt 6; alles andere dort nur nach Rücksprache mit Thies. Nach jedem Modul-Ticket dort die Spalte „Stand" aktualisieren.
 - **Demo-Modus bis zum Anschluss-Block:** Jarvis läuft mit Demo-Gehirn (vorbereitete Antworten statt Claude) und Demo-Kalender (erfundene Termine statt Google). Bis zum Anschluss-Block: keine Pakete für Login, Datenbank oder KI; keine echten persönlichen Daten, weil die App ohne Login öffentlich erreichbar ist; nichts dauerhaft speichern, alles lebt nur im Arbeitsspeicher. Neue Fähigkeiten so bauen, dass später nur Gehirn bzw. Datenquelle getauscht werden (`docs/architektur.md`, Abschnitt 14). Ein neues Modul braucht im Demo-Modus zusätzlich Regeln im Demo-Gehirn (`src/core/assistant/demo-gehirn/`); sie verschwinden mit Claude.
 
 ## Stack

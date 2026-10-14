@@ -4,7 +4,7 @@ _Stand: 14.10.2026 · Quellen: Recherche „Jarvis vs. Personal Assistant" (08.1
 
 **Wozu dieses Dokument:** Es zeigt das Gesamtbild: alle Module, die wir am Anfang geplant haben, mit ihren Funktionen und woher jede Funktion kommt (Jarvis aus den Filmen, Berufsbild Personal Assistant, Thies' Alltag). So passt jedes Ticket ins Ganze.
 
-**Kein Bauauftrag.** Gebaut wird nur, was ein Ticket verlangt, das Thies freigegeben hat. Funktionen mit Stand „Idee" oder „später" nicht von selbst bauen. Neue Ideen kommen als Vorschlag auf den Ideen-Parkplatz im App-Board (siehe `CLAUDE.md`).
+**Was gebaut werden darf:** Thies hat am 14.10.2026 alles freigegeben, was im Demo-Modus sinnvoll baubar ist. Das ist der **Bauplan in Abschnitt 6**; dafür braucht es kein eigenes „go" mehr. Alles andere in diesem Katalog (Stand „später", „Idee" oder „Anschluss-Block") nicht von selbst bauen. Neue Ideen kommen als Vorschlag auf den Ideen-Parkplatz im App-Board (siehe `CLAUDE.md`).
 
 **Pflege:** Wer ein Modul-Ticket abschließt, aktualisiert hier die Spalte „Stand".
 
@@ -21,6 +21,7 @@ _Stand: 14.10.2026 · Quellen: Recherche „Jarvis vs. Personal Assistant" (08.1
 
 - **Demo ✓** – im Demo-Modus gebaut und in `main`
 - **Demo, PR #n** – im Demo-Modus gebaut, Pull Request noch offen
+- **Bauplan X** – freigegeben am 14.10.2026; Claude Code baut es als Ticket X (Abschnitt 6)
 - **Anschluss-Block** – kommt mit Login, Datenbank, Claude und Google (siehe App-Board)
 - **später** – geplant, noch kein Ticket
 - **Idee** – noch nicht beschlossen, erst mit Thies klären
@@ -42,7 +43,7 @@ _Stand: 14.10.2026 · Quellen: Recherche „Jarvis vs. Personal Assistant" (08.1
 | Gedächtnis für Personen, Projekte und Vorlieben; Jarvis zeigt „Gemerkt: …"; alles in den Einstellungen einsehbar und löschbar | V | Anschluss-Block |
 | Schutzschicht: Vorschau und „Freigeben"/„Ablehnen" für alles Ändernde | V, PA (Umgang mit Vertraulichem) | Demo ✓ (Arbeitsspeicher), dauerhaft im Anschluss-Block |
 | Modul-Steckplätze: neues Modul = neuer Ordner + Eintrag in der Registry | V | Demo ✓ |
-| Werkzeuge mehrerer Module in einer Antwort verbinden | V | Demo, PR #6 |
+| Werkzeuge mehrerer Module in einer Antwort verbinden | V | Demo ✓ |
 | Login mit Google, nur Thies' Konto | V | Anschluss-Block |
 
 ## 3. Module
@@ -57,13 +58,13 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 |---|---|---|---|
 | Termine eines Tages zeigen (`termine_am_tag`) | „Was steht Freitag an?" | lesen | Demo ✓ |
 | Termin per Zuruf eintragen (`termin_anlegen`) | „Trag Zahnarzt Freitag 10 Uhr ein" | schreiben | Demo ✓ |
-| Termine suchen (`termine_suchen`) | „Wann ist Training?" | lesen | Demo, PR #5 |
-| Verschieben, Dauer und Titel ändern (`termin_aendern`) | „Verschieb Laufen im Park auf 19 Uhr" | schreiben | Demo, PR #5 und #7 |
-| Absagen (`termin_absagen`) | „Sag Training am Dienstag ab" | schreiben | Demo, PR #5 |
-| Wöchentliche Dauertermine, Umfang „nur dieses Mal" oder „ab jetzt immer" | „Training ist ab jetzt immer um 19 Uhr" | schreiben | Demo, PR #5 |
-| Datumsangaben wie „21.10." oder „3. November" | „Trag Zahnarzt am 3.11. um 9 Uhr ein" | – | Demo, PR #7 |
+| Termine suchen (`termine_suchen`) | „Wann ist Training?" | lesen | Demo ✓ |
+| Verschieben, Dauer und Titel ändern (`termin_aendern`) | „Verschieb Laufen im Park auf 19 Uhr" | schreiben | Demo ✓ |
+| Absagen (`termin_absagen`) | „Sag Training am Dienstag ab" | schreiben | Demo ✓ |
+| Wöchentliche Dauertermine, Umfang „nur dieses Mal" oder „ab jetzt immer" | „Training ist ab jetzt immer um 19 Uhr" | schreiben | Demo ✓ |
+| Datumsangaben wie „21.10." oder „3. November" | „Trag Zahnarzt am 3.11. um 9 Uhr ein" | – | Demo ✓ |
 | Erinnerung vor einem Termin als Push-Nachricht aufs iPhone | „Erinnere mich eine Stunde vorher" | schreiben | später |
-| Kalender aufräumen: veraltete Dauertermine gemeinsam durchgehen | „Lass uns meine festen Termine durchgehen" | lesen, dann schreiben | Idee (V, Phase 1) |
+| Kalender aufräumen: veraltete Dauertermine gemeinsam durchgehen | „Lass uns meine festen Termine durchgehen" | lesen, dann schreiben | Bauplan F |
 
 **Echte Anbindung:** Google Calendar API. Kalenderdaten nur live lesen, nicht in der Datenbank speichern. Lesen mit `calendar.events.readonly`; Schreiben braucht `calendar.events`, nur mit Freigabe von Thies. „Ab jetzt immer" teilt eine Serie, wie es vermutlich auch Google macht (plausibel, beim echten Modul in der Google-Doku prüfen). Push-Nachrichten und Zeitsteuerung sind technisch noch nicht geprüft.
 
@@ -73,10 +74,10 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 
 | Funktion | Beispielsatz | Art | Stand |
 |---|---|---|---|
-| Tagesüberblick auf Anfrage: Termine plus fällige und überfällige Aufgaben | „Wie sieht mein Tag aus?", „Guten Morgen" | lesen | Demo, PR #6 |
+| Tagesüberblick auf Anfrage: Termine plus fällige und überfällige Aufgaben | „Wie sieht mein Tag aus?", „Guten Morgen" | lesen | Demo ✓ |
 | Morgen-Briefing, das von selbst kommt | – | lesen | später |
-| Abendrückblick: was war, was steht morgen an, was ist offen | „Was steht morgen an?" | lesen | später |
-| Wichtige Mails im Briefing | – | lesen | später (mit 3.4) |
+| Abendrückblick: was war, was steht morgen an, was ist offen | „Abendrückblick", „Wie war mein Tag?" | lesen | Bauplan G |
+| Wichtige Mails im Briefing | – | lesen | Bauplan G und H |
 | Eigener Heute-Bildschirm statt nur Chat | – | lesen | Idee (V; Gestaltung durch Thies) |
 
 **Echte Anbindung:** keine eigenen Daten, fasst andere Module zusammen. Für das automatische Briefing müssen Zeitsteuerung und Push auf Vercel Hobby geprüft werden.
@@ -90,9 +91,9 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 | Aufgabe mit oder ohne Frist anlegen (`aufgabe_anlegen`) | „Neue Aufgabe: Steuererklärung abgeben bis Freitag" | schreiben | Demo ✓ |
 | Offene und fällige Aufgaben zeigen, Überfälliges zuerst (`aufgaben_anzeigen`) | „Was ist diese Woche fällig?" | lesen | Demo ✓ |
 | Abhaken (`aufgabe_erledigen`) | „Steuererklärung ist erledigt" | schreiben | Demo ✓ |
-| Frist oder Titel ändern, löschen, wieder öffnen, Erledigtes zeigen | „Paket zur Post hat Zeit bis Montag" | schreiben | Demo, PR #8 |
+| Frist oder Titel ändern, löschen, wieder öffnen, Erledigtes zeigen | „Paket zur Post hat Zeit bis Montag" | schreiben | Demo ✓ |
 | Erinnerung vor Ablauf einer Frist | – | – | später |
-| Fristen aus Mails übernehmen | „Mach aus der Mail eine Aufgabe" | schreiben | Idee (mit 3.4) |
+| Fristen aus Mails übernehmen | „Mach aus der Mail eine Aufgabe" | schreiben | Bauplan I |
 
 **Echte Anbindung:** Wo die Aufgaben später liegen, ist offen: eigene Tabelle in Neon oder Google Tasks. Vor dem echten Modul mit Thies klären.
 
@@ -104,12 +105,12 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 
 | Funktion | Beispielsatz | Art | Stand |
 |---|---|---|---|
-| Mails anzeigen und eine Mail lesen (`mails_anzeigen`, `mail_lesen`) | „Was ist neu im Posteingang?" | lesen | Demo, PR #9 |
-| Antwort als Entwurf ablegen (`antwort_entwurf_anlegen`) | „Antworte der Hausverwaltung: Donnerstag passt, danke!" | schreiben | Demo, PR #9 |
-| Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | später (braucht Claude) |
-| Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | später (braucht Claude) |
+| Mails anzeigen und eine Mail lesen (`mails_anzeigen`, `mail_lesen`) | „Was ist neu im Posteingang?" | lesen | Demo ✓ |
+| Antwort als Entwurf ablegen (`antwort_entwurf_anlegen`) | „Antworte der Hausverwaltung: Donnerstag passt, danke!" | schreiben | Demo ✓ |
+| Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | Bauplan H (im Demo vorbereitet; echt mit Claude) |
+| Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | Bauplan H (im Demo vorbereitet; echt mit Claude) |
 | Senden, nur nach Freigabe | – | schreiben | später; bewusst noch kein Werkzeug |
-| Termine und Fristen in Mails erkennen und als Termin oder Aufgabe vorschlagen | – | schreiben | Idee |
+| Termine und Fristen in Mails erkennen und als Termin oder Aufgabe vorschlagen | „Trag den Termin aus der Mail der Hausverwaltung ein" | schreiben | Bauplan I |
 
 **Echte Anbindung:** Gmail API. Schon das Lesen fällt bei Google in die strengste Stufe, deshalb Gmail-Berechtigungen nie ohne Freigabe von Thies. Vorher in der offiziellen Google-Doku prüfen, ob die Ausnahme für Apps mit weniger als 100 Konten gilt (Annahme 2 im App-Board). Vorschlag: Mails wie den Kalender nur live lesen, nicht speichern.
 
@@ -131,9 +132,10 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 
 | Funktion | Beispielsatz | Art | Stand |
 |---|---|---|---|
-| Freie Zeiten im Kalender finden und vorschlagen | „Wann habe ich nächste Woche zwei Stunden frei?" | lesen | später |
-| Nachricht oder Einladung an andere entwerfen, senden nur nach Freigabe | „Schlag Lisa Dienstag oder Donnerstag vor" | schreiben | später |
-| Treffen vorbereiten und Protokoll festhalten | – | schreiben | Idee |
+| Freie Zeiten im Kalender finden und vorschlagen | „Wann habe ich nächste Woche zwei Stunden frei?" | lesen | Bauplan K |
+| Nachricht oder Einladung an andere entwerfen, senden nur nach Freigabe | „Schlag Lisa Dienstag oder Donnerstag vor" | schreiben | Bauplan K (nur Entwurf; Senden wartet) |
+| Protokoll zu einem Termin als Notiz festhalten | „Protokoll zur Team-Besprechung: …" | schreiben | Bauplan K |
+| Treffen vorbereiten | „Bereite mich auf das Treffen mit Lisa vor" | lesen | später (braucht Claude) |
 
 **Echte Anbindung:** hängt am Kalender (frei/belegt) und am Posteingang (Versand). Kanal offen; Messenger wie WhatsApp sind nicht geprüft.
 
@@ -143,10 +145,11 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 
 | Funktion | Beispielsatz | Art | Stand |
 |---|---|---|---|
-| Einkaufs- und Besorgungsliste | „Setz Milch auf die Einkaufsliste" | schreiben | Idee (evtl. als Liste in 3.3) |
+| Einkaufs- und Besorgungsliste | „Setz Milch auf die Einkaufsliste" | schreiben | Bauplan J (als Liste in 3.3) |
 | Reiseplan zusammenstellen (Zeiten, Orte, Verbindungen) | „Plan mir die Fahrt nach Hamburg" | lesen | Idee |
 | Buchen: nur Vorschlag oder Link, denn Buchen kostet Geld und läuft nie ohne Freigabe | – | schreiben | Idee, technisch ungeprüft |
-| An Geburtstage erinnern, Geschenkideen sammeln | – | – | Idee |
+| Geburtstage anzeigen und Geschenkideen sammeln | „Wer hat diesen Monat Geburtstag?" | lesen, schreiben | Bauplan L |
+| An Geburtstage erinnern (Push) | – | – | später |
 
 ### 3.8 Zuhause
 
@@ -155,7 +158,7 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 | Funktion | Beispielsatz | Art | Stand |
 |---|---|---|---|
 | Smart Home steuern | „Mach die Heizung an" | schreiben | Idee, ungeprüft: welche Geräte Thies hat und ob es dafür eine Schnittstelle gibt |
-| Wiederkehrende Haushaltsaufgaben | „Erinner mich jeden Monat an den Wasserfilter" | schreiben | Idee (über 3.3) |
+| Wiederkehrende Haushaltsaufgaben | „Neue Aufgabe: Wasserfilter wechseln, jeden Monat" | schreiben | Bauplan J (über 3.3) |
 | Termine mit Handwerkern abstimmen | – | schreiben | über 3.6 |
 
 Bevor hier etwas geplant wird, mit Thies klären, was er konkret braucht.
@@ -164,9 +167,9 @@ Bevor hier etwas geplant wird, mit Thies klären, was er konkret braucht.
 
 | Funktion | Beispielsatz | Art | Stand |
 |---|---|---|---|
-| Notiz anlegen, anzeigen, löschen | „Notiz: Fahrradschloss kaufen" | schreiben | Demo, PR #10 |
+| Notiz anlegen, anzeigen, löschen | „Notiz: Fahrradschloss kaufen" | schreiben | Demo ✓ |
 
-Abgrenzung zum Gedächtnis: siehe `docs/architektur.md` (Abschnitt „Modul Notizen", kommt mit PR #10).
+Abgrenzung zum Gedächtnis: siehe `docs/architektur.md` (Abschnitt 21).
 
 ## 4. Bewusst nicht übernommen
 
@@ -188,3 +191,44 @@ Verbindlich sind `CLAUDE.md` und `docs/architektur.md`; hier nur das Wichtigste.
 - Bis zum Anschluss-Block gilt der Demo-Modus: erfundene Daten, nur im Arbeitsspeicher, mit Obergrenzen; erfundene Mail-Adressen enden auf `.example`.
 - Echte Anbindung: Google-Berechtigungen so wenige wie möglich. Gmail und Kalender-Schreibrechte nur mit Freigabe von Thies. Kalenderdaten nie in die Datenbank kopieren.
 - Zeitzone `Europe/Berlin`, mobile first (iPhone), Touch-Ziele mindestens 44 × 44 px, WCAG 2.2 AA.
+
+## 6. Bauplan – freigegeben am 14.10.2026
+
+Thies hat am 14.10.2026 alles zum Bau freigegeben, was im Demo-Modus sinnvoll baubar ist. Claude Code arbeitet die Tickets **der Reihe nach** ab, ohne vorher auf ein „go" zu warten. Die Buchstaben setzen die Tickets A–E fort.
+
+| Ticket | Inhalt | Beispielsätze |
+|---|---|---|
+| **F – Kalender aufräumen** | Jarvis geht die Dauertermine einzeln durch (nächstes Vorkommen, Uhrzeit, Dauer) und fragt jeweils „Stimmt das noch?". „Passt" → nächster. Eine Änderung oder „gibt es nicht mehr" → vorhandene Werkzeuge `termin_aendern` bzw. `termin_absagen` mit Umfang „ab diesem Termin", wie immer mit Freigabe-Karte. „Stopp" beendet den Durchgang. Am Ende eine kurze Zusammenfassung. | „Lass uns meine festen Termine durchgehen" |
+| **G – Abendrückblick** | Heute erledigte Aufgaben, die heutigen Termine, was morgen ansteht, was offen oder überfällig ist. Der Tagesüberblick nennt zusätzlich die Zahl neuer Mails; nach Ticket H die „heute wichtigen". | „Abendrückblick", „Wie war mein Tag?" |
+| **H – Posteingang einordnen** | Jede Demo-Mail bekommt eine Einordnung („braucht dich heute", „kann warten", „egal"), einen **sichtbaren Grund** in einem Satz und eine Kurzfassung in einer Zeile. Im Demo-Modus stehen sie vorbereitet in den Daten; im Anschluss-Block übernimmt Claude das Einordnen. Das in `docs/architektur.md` so festhalten. Dafür mehr erfundene Mails (etwa 8, alle mit `.example`). | „Was ist heute wichtig in meinen Mails?", „Fass mir meine Mails zusammen" |
+| **I – Aus Mails übernehmen** | Jarvis liest eine Mail und schlägt daraus eine Aufgabe mit Frist oder einen Termin vor, über die vorhandenen Werkzeuge mit Freigabe-Karte. Die Karte nennt die Mail als Quelle. Findet Jarvis kein Datum, fragt er nach. | „Mach aus der Mail von der Bibliothek eine Aufgabe", „Trag den Termin aus der Mail der Hausverwaltung ein" |
+| **J – Wiederkehrende Aufgaben und Einkaufsliste** | Aufgaben können sich wöchentlich oder monatlich wiederholen: Nach dem Abhaken erscheint die nächste mit neuer Frist. Dazu Listen im Modul `aufgaben-demo`, zuerst „Einkauf"; Einträge dort ohne Frist und nicht im Tagesüberblick. Die Form der Werkzeuge so halten, dass später eigene Tabelle oder Google Tasks möglich bleibt (Entscheidung offen). | „Neue Aufgabe: Wasserfilter wechseln, jeden Monat", „Setz Milch auf die Einkaufsliste", „Was steht auf der Einkaufsliste?", „Milch hab ich" |
+| **K – Koordination** | Lese-Werkzeug für freie Zeiten einer bestimmten Länge in einem Zeitraum, zwischen 8 und 20 Uhr, mit Dauerterminen, `Europe/Berlin`. 3–4 erfundene Demo-Kontakte mit `.example`. Terminvorschlag an einen Kontakt **nur als Entwurf** mit Freigabe-Karte; gesendet wird nichts, es gibt weiter kein Werkzeug zum Senden. Dazu ein Protokoll zu einem Termin als Notiz. | „Wann habe ich nächste Woche zwei Stunden frei?", „Schlag Lisa Dienstag oder Donnerstag ein Treffen vor", „Protokoll zur Team-Besprechung: …" |
+| **L – Geburtstage und Geschenkideen** | Erfundene Geburtstage (gern die Demo-Kontakte aus K). Anzeigen nach Person und Zeitraum; der Tagesüberblick nennt Geburtstage heute und in den nächsten 7 Tagen. Geschenkideen je Person festhalten, mit Freigabe-Karte; prüfen, ob dafür das Modul Notizen reicht. Die echte Quelle (Google-Kontakte oder Kalender) bleibt offen, Berechtigungen nur mit Freigabe. | „Wer hat diesen Monat Geburtstag?", „Wann hat Lisa Geburtstag?", „Geschenkidee für Lisa: Kochbuch" |
+
+**So läuft jedes Ticket**
+
+- Ein Ticket = ein Branch `feat/<buchstabe>-<kurzname>` = ein Pull Request. Ist der vorige noch nicht in `main`, auf ihm aufbauen und die Reihenfolge in der PR-Beschreibung nennen.
+- Der Plan steht in der PR-Beschreibung (was, warum, Abweichungen, wie testen). Kein Warten auf ein „go".
+- Fertig erst, wenn `npm run check` und `npm run test:e2e` grün sind und `docs/architektur.md`, `README.md` und hier die Spalte „Stand" aktuell sind.
+- **Nie selbst nach `main` zusammenführen.** Das macht Thies, weil `main` die Produktion ist.
+- Am Ende jedes Tickets Thies in einfachen Worten erklären, was neu ist und wie er es ausprobiert.
+
+**Anhalten und Thies fragen, wenn**
+
+- der Kern (`src/core/guard`, `src/core/assistant/chat.ts`, `src/app/api`, `src/modules/vertrag.ts`) mehr als eine kleine Ergänzung bräuchte; neue Regeln im Demo-Gehirn sind erlaubt
+- ein neues Paket nötig wäre
+- ein Ticket nur mit echten Daten oder echten Zugängen Sinn ergibt
+- etwas den Regeln in `CLAUDE.md` widerspricht oder unklar ist
+
+**Nicht im Bauplan, wartet weiter**
+
+| Was | Warum |
+|---|---|
+| Login, Datenbank, Claude (mit Persönlichkeit und Gedächtnis), echter Kalender, echte Gmail | Anschluss-Block; braucht die Zugänge |
+| Push-Erinnerungen (Termine, Fristen, Geburtstage), Morgen-Briefing, das von selbst kommt | braucht Push-Nachrichten, Zeitsteuerung und Speicher |
+| Recherche, Treffen vorbereiten, Reiseplan | braucht Claude und eine Websuche |
+| Mails und Nachrichten senden | erst mit echter Gmail und ausdrücklicher Freigabe |
+| Buchen | kostet Geld |
+| Smart Home | erst klären, welche Geräte Thies hat |
+| Eigener Heute-Bildschirm | Gestaltung macht Thies (ADR-005) |
