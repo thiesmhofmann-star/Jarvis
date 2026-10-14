@@ -7,7 +7,7 @@ import {
   type Mail,
 } from "./mails";
 
-export type { Entwurf, Mail } from "./mails";
+export type { Einordnung, Entwurf, Mail } from "./mails";
 
 const POSTEINGANG = "Demo-Posteingang (nur im Arbeitsspeicher)";
 
@@ -29,7 +29,7 @@ const mailsAnzeigenEingabe = z.object({
 
 const mailsAnzeigen: ReadTool<typeof mailsAnzeigenEingabe> = {
   description:
-    "Liefert die Mails im Demo-Posteingang, neueste zuerst, mit Absender, Betreff und Anfang des Textes. Mit suche nur die, deren Absender oder Betreff alle Wörter enthält.",
+    "Liefert die Mails im Demo-Posteingang, neueste zuerst, mit Absender, Betreff, Anfang des Textes sowie Einordnung, Grund und Kurzfassung. Mit suche nur die, deren Absender oder Betreff alle Wörter enthält.",
   effect: "read",
   input: mailsAnzeigenEingabe,
   async execute({ suche }, ctx) {

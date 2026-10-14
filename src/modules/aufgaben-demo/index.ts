@@ -64,19 +64,22 @@ function fristText(frist?: string) {
 const aufgabeAnlegenEingabe = z.object({
   titel: z.string().trim().min(1).max(100),
   frist: z.iso.date().optional(),
+  /** Woher der Vorschlag kommt, z. B. eine Mail; steht auf der Freigabe-Karte */
+  quelle: z.string().trim().min(1).max(200).optional(),
 });
 
 const aufgabeAnlegen: WriteTool<typeof aufgabeAnlegenEingabe> = {
   description: "Legt eine neue Aufgabe mit optionaler Frist an.",
   effect: "write",
   input: aufgabeAnlegenEingabe,
-  async preview({ titel, frist }) {
+  async preview({ titel, frist, quelle }) {
     return {
       titel: "Aufgabe anlegen",
       beschreibung: "Jarvis setzt diese Aufgabe auf deine Demo-Aufgabenliste.",
       daten: [
         { label: "Was", wert: titel },
         { label: "Frist", wert: fristText(frist) },
+        ...(quelle ? [{ label: "Quelle", wert: quelle }] : []),
         { label: "Liste", wert: LISTE },
       ],
     };
@@ -133,6 +136,7 @@ const aufgabeErledigen: WriteTool<typeof aufgabeErledigenEingabe> = {
     // Erneut prüfen: Zwischen Vorschau und Freigabe kann sich etwas geändert haben.
     const aufgabe = offeneAufgabe(ctx.nutzerId, ctx.jetzt, id);
     aufgabe.erledigt = true;
+    aufgabe.erledigtAm = ctx.jetzt.toISOString();
     return { aufgabe } satisfies AufgabeErgebnis;
   },
 };
@@ -273,6 +277,7 @@ const aufgabeWiederOeffnen: WriteTool<typeof idEingabe> = {
   async execute({ id }, ctx) {
     const aufgabe = erledigteAufgabe(ctx.nutzerId, ctx.jetzt, id);
     aufgabe.erledigt = false;
+    delete aufgabe.erledigtAm;
     return { aufgabe } satisfies AufgabeErgebnis;
   },
 };

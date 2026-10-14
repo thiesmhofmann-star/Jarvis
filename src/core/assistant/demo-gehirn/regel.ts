@@ -12,8 +12,16 @@ export type WerkzeugSchritt = Extract<Nachricht, { rolle: "werkzeug" }>;
 export type DemoRegel = {
   /** Werkzeuge der Regel, das wichtigste zuerst. Sie greift nur, wenn alle angeboten werden. */
   werkzeuge: readonly string[];
-  /** Erster Schritt zu einer Nachricht von Thies, oder null, wenn die Regel nicht passt. */
-  erkenne(text: string, jetzt: Date): GehirnAntwort | null;
+  /**
+   * Erster Schritt zu einer Nachricht von Thies, oder null, wenn die Regel
+   * nicht passt. `davor` ist das Gespräch vor dieser Nachricht, für Abläufe
+   * über mehrere Nachrichten (z. B. Dauertermine durchgehen).
+   */
+  erkenne(
+    text: string,
+    jetzt: Date,
+    davor: readonly Nachricht[],
+  ): GehirnAntwort | null;
   /**
    * Nächster Schritt, nachdem eines ihrer Werkzeuge gelaufen ist: Antwort oder
    * weiterer Aufruf. `bisher` sind die Werkzeug-Schritte davor zur selben
@@ -24,6 +32,7 @@ export type DemoRegel = {
     text: string,
     jetzt: Date,
     bisher: readonly WerkzeugSchritt[],
+    davor: readonly Nachricht[],
   ): GehirnAntwort;
 };
 

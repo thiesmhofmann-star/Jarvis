@@ -10,15 +10,19 @@ import {
   aufgabenAnzeigen,
 } from "./aufgaben-regeln";
 import { terminAnlegen, termineAmTag } from "./kalender-regeln";
+import { ausMailUebernehmen } from "./mail-uebernahme-regeln";
 import { notizAnlegen, notizenAnzeigen, notizLoeschen } from "./notizen-regeln";
 import {
   antwortEntwurf,
   entwuerfeAnzeigen,
   mailLesen,
   mailsAnzeigen,
+  mailsZusammenfassen,
+  wichtigeMails,
 } from "./posteingang-regeln";
+import { kalenderAufraeumen } from "./aufraeum-regeln";
 import type { DemoRegel } from "./regel";
-import { tagesueberblick } from "./ueberblick-regeln";
+import { abendrueckblick, tagesueberblick } from "./ueberblick-regeln";
 import {
   terminAbsagen,
   terminAendern,
@@ -28,6 +32,9 @@ import {
 /**
  * Alle Regeln des Demo-Gehirns. Die Reihenfolge zählt, die erste passende
  * gewinnt:
+ * - Kalender aufräumen ganz vorn: Mitten im Durchgang sind „passt“ oder
+ *   „ab jetzt 19 Uhr“ Antworten auf seine Frage,
+ * - „Mach aus der Mail … eine Aufgabe“ vor allen Aufgaben- und Termin-Sätzen,
  * - „Antworte …: …“ und „Notiz: …“ ganz vorn, der Text darf alles enthalten,
  * - Mail-Sätze nach den Termin-Sätzen („Trag Mail schreiben … ein“ ist ein Termin),
  * - Aufgaben pflegen vor dem Abhaken: „Frist“ und „Aufgabe … löschen“ sind eindeutig,
@@ -41,7 +48,9 @@ import {
  * - „Was ist fällig?“ vor „Was steht an?“.
  */
 export const demoRegeln: readonly DemoRegel[] = [
+  kalenderAufraeumen,
   antwortEntwurf,
+  ausMailUebernehmen,
   notizAnlegen,
   notizLoeschen,
   notizenAnzeigen,
@@ -55,8 +64,11 @@ export const demoRegeln: readonly DemoRegel[] = [
   terminAbsagen,
   terminAendern,
   entwuerfeAnzeigen,
+  wichtigeMails,
+  mailsZusammenfassen,
   mailLesen,
   mailsAnzeigen,
+  abendrueckblick,
   tagesueberblick,
   aufgabenAnzeigen,
   termineSuchen,
