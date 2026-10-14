@@ -416,6 +416,14 @@ Jede Mail hat eine **Einordnung** („braucht dich heute“, „kann warten“, 
 - **Sätze:** „Was ist heute wichtig in meinen Mails?“ → nur „braucht dich heute“, je mit Kurzfassung und Grund, dazu die Zahl der übrigen. „Fass mir meine Mails zusammen“ → alle Mails nach Einordnung gruppiert, jede mit Kurzfassung und Grund. Die Mail-Liste markiert „(braucht dich heute)“, eine gelesene Mail zeigt Einordnung und Grund.
 - **Tagesüberblick:** nennt nach der Zahl neuer Mails auch die Absender, die dich heute brauchen.
 
+## 25. Aus Mails übernehmen im Demo-Modus (Ticket I)
+Jarvis liest eine Mail und schlägt daraus eine Aufgabe mit Frist oder einen Termin vor. Neu ist dafür kein Werkzeug: Die Regel ruft nacheinander `mails_anzeigen` (Absender suchen), `mail_lesen` und dann `aufgabe_anlegen` oder `termin_anlegen`. Das sind drei Schritte, sie passen in die höchstens 5 je Nachricht (Abschnitt 14).
+
+- **Quelle auf der Karte:** `aufgabe_anlegen` und `termin_anlegen` haben ein neues, freiwilliges Feld `quelle` (höchstens 200 Zeichen). Ist es gesetzt, zeigt die Freigabe-Karte eine Zeile „Quelle“, z. B. „Mail von Lena Berger: „Unterlagen für Montag““. Gespeichert wird die Quelle nicht, sie dient nur der Entscheidung auf der Karte. Später bei Google: Die Quelle passt in die Beschreibung des Termins (`events.insert`, Feld `description`) bzw. in die Notiz der Aufgabe; das klären die echten Module.
+- **Was das Demo-Gehirn liest:** Titel aus dem Betreff (ohne „Re:“, „Erinnerung:“, „Ihr“; beim Termin ohne „am Donnerstag“). Frist: ein Tag hinter „bis“ oder „spätestens“, sonst der erste Tag im Text. Termin: der erste Tag und die erste Uhrzeit im Text; eine zweite Uhrzeit („bis etwa 12 Uhr“) ist das Ende. Was der Nutzer selbst nennt („… eine Aufgabe bis Dienstag“, „… um 9 Uhr ein“), hat Vorrang.
+- **Kein Datum:** Findet Jarvis keins, fragt er nach und nennt Beispielsätze („… eine Aufgabe bis Freitag“, „… ohne Frist“). Er rät nie.
+- **Im Anschluss-Block:** Claude liest die Mail selbst und versteht auch freie Formulierungen. Die festen Wort-Regeln fallen dann weg; Werkzeuge, Freigabe-Karte und Quelle bleiben.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css

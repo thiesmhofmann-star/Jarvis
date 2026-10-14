@@ -10,6 +10,7 @@ import {
   aufgabenAnzeigen,
 } from "./aufgaben-regeln";
 import { terminAnlegen, termineAmTag } from "./kalender-regeln";
+import { ausMailUebernehmen } from "./mail-uebernahme-regeln";
 import { notizAnlegen, notizenAnzeigen, notizLoeschen } from "./notizen-regeln";
 import {
   antwortEntwurf,
@@ -33,6 +34,7 @@ import {
  * gewinnt:
  * - Kalender aufräumen ganz vorn: Mitten im Durchgang sind „passt“ oder
  *   „ab jetzt 19 Uhr“ Antworten auf seine Frage,
+ * - „Mach aus der Mail … eine Aufgabe“ vor allen Aufgaben- und Termin-Sätzen,
  * - „Antworte …: …“ und „Notiz: …“ ganz vorn, der Text darf alles enthalten,
  * - Mail-Sätze nach den Termin-Sätzen („Trag Mail schreiben … ein“ ist ein Termin),
  * - Aufgaben pflegen vor dem Abhaken: „Frist“ und „Aufgabe … löschen“ sind eindeutig,
@@ -48,6 +50,7 @@ import {
 export const demoRegeln: readonly DemoRegel[] = [
   kalenderAufraeumen,
   antwortEntwurf,
+  ausMailUebernehmen,
   notizAnlegen,
   notizLoeschen,
   notizenAnzeigen,

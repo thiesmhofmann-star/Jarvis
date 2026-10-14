@@ -90,7 +90,7 @@ function gelesen(schritt: WerkzeugSchritt) {
  * Wählt die gemeinte Mail: kommen alle Treffer vom selben Absender, die
  * neueste; sonst fragt Jarvis nach und nennt die Absender.
  */
-function waehleMail(
+export function waehleMail(
   mails: MailKurz[],
   suche: string,
 ): { mail: MailKurz } | { antwort: GehirnAntwort } {

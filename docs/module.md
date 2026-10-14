@@ -93,7 +93,7 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 | Abhaken (`aufgabe_erledigen`) | „Steuererklärung ist erledigt" | schreiben | Demo ✓ |
 | Frist oder Titel ändern, löschen, wieder öffnen, Erledigtes zeigen | „Paket zur Post hat Zeit bis Montag" | schreiben | Demo ✓ |
 | Erinnerung vor Ablauf einer Frist | – | – | später |
-| Fristen aus Mails übernehmen | „Mach aus der Mail eine Aufgabe" | schreiben | Bauplan I |
+| Fristen aus Mails übernehmen | „Mach aus der Mail eine Aufgabe" | schreiben | Demo, PR #16 |
 
 **Echte Anbindung:** Wo die Aufgaben später liegen, ist offen: eigene Tabelle in Neon oder Google Tasks. Vor dem echten Modul mit Thies klären.
 
@@ -110,7 +110,7 @@ Reihenfolge wie in der Roadmap des App-Boards. Werkzeugnamen in Klammern, wo es 
 | Einordnen in „braucht dich heute", „kann warten" oder „Spam, egal", **mit sichtbarem Grund**, sonst entsteht kein Vertrauen (Design-Aufgabe) | „Was ist heute wichtig in meinen Mails?" | lesen | Demo, PR #15 (im Demo vorbereitet; echt mit Claude) |
 | Kurzfassung statt vieler ungelesener Mails | „Fass mir meine Mails zusammen" | lesen | Demo, PR #15 (im Demo vorbereitet; echt mit Claude) |
 | Senden, nur nach Freigabe | – | schreiben | später; bewusst noch kein Werkzeug |
-| Termine und Fristen in Mails erkennen und als Termin oder Aufgabe vorschlagen | „Trag den Termin aus der Mail der Hausverwaltung ein" | schreiben | Bauplan I |
+| Termine und Fristen in Mails erkennen und als Termin oder Aufgabe vorschlagen | „Trag den Termin aus der Mail der Hausverwaltung ein" | schreiben | Demo, PR #16 |
 
 **Echte Anbindung:** Gmail API. Schon das Lesen fällt bei Google in die strengste Stufe, deshalb Gmail-Berechtigungen nie ohne Freigabe von Thies. Vorher in der offiziellen Google-Doku prüfen, ob die Ausnahme für Apps mit weniger als 100 Konten gilt (Annahme 2 im App-Board). Vorschlag: Mails wie den Kalender nur live lesen, nicht speichern.
 

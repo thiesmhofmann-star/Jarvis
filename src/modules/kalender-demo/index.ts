@@ -151,6 +151,8 @@ const terminAnlegenEingabe = z.object({
     .default(60),
   /** true: jede Woche am selben Wochentag zur selben Uhrzeit, ohne Ende */
   woechentlich: z.boolean().default(false),
+  /** Woher der Vorschlag kommt, z. B. eine Mail; steht auf der Freigabe-Karte */
+  quelle: z.string().trim().min(1).max(200).optional(),
 });
 
 const terminAnlegen: WriteTool<typeof terminAnlegenEingabe> = {
@@ -158,7 +160,8 @@ const terminAnlegen: WriteTool<typeof terminAnlegenEingabe> = {
     "Legt einen neuen Termin im Demo-Kalender an. Mit woechentlich: true als Dauertermin jede Woche am selben Wochentag zur selben Uhrzeit.",
   effect: "write",
   input: terminAnlegenEingabe,
-  async preview({ titel, beginn, dauerMinuten, woechentlich }) {
+  async preview({ titel, beginn, dauerMinuten, woechentlich, quelle }) {
+    const herkunft = quelle ? [{ label: "Quelle", wert: quelle }] : [];
     if (!woechentlich) {
       return {
         titel: "Termin anlegen",
@@ -167,6 +170,7 @@ const terminAnlegen: WriteTool<typeof terminAnlegenEingabe> = {
           { label: "Was", wert: titel },
           { label: "Wann", wert: wannText(beginn) },
           { label: "Dauer", wert: `${dauerMinuten} Minuten` },
+          ...herkunft,
           { label: "Kalender", wert: KALENDER },
         ],
       };
@@ -183,6 +187,7 @@ const terminAnlegen: WriteTool<typeof terminAnlegenEingabe> = {
           wert: `Jede Woche am ${formatiereWochentag(berlinDatum(new Date(beginn)))}`,
         },
         { label: "Dauer", wert: `${dauerMinuten} Minuten` },
+        ...herkunft,
         { label: "Kalender", wert: KALENDER },
       ],
     };
