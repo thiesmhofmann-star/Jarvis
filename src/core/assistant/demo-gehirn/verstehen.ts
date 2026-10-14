@@ -400,3 +400,12 @@ export function findeUmbenennung(
   }
   return null;
 }
+
+/** Findet einen Wochentag als Zahl (0 = Sonntag): „Mittwoch“, „mittwochs“, „am Mittwoch“. */
+export function findeWochentag(w: Woerter): number | null {
+  for (const wort of w.klein) {
+    const tag = WOCHENTAGE.indexOf(wort.replace(/s$/, ""));
+    if (tag >= 0) return tag;
+  }
+  return null;
+}
