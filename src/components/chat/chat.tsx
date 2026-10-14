@@ -16,9 +16,12 @@ export const DEMO_HINWEIS =
   "Jarvis antwortet mit vorbereiteten Texten. Nichts wird gespeichert.";
 
 const BEISPIELE = [
+  "Wie sieht mein Tag aus?",
   "Was steht heute an?",
   "Trag Zahnarzt Freitag 10 Uhr ein",
   "Was ist diese Woche fällig?",
+  "Training ist ab jetzt immer um 19 Uhr",
+  "Was ist neu im Posteingang?",
 ];
 
 type Eintrag =

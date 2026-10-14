@@ -122,7 +122,7 @@ test("Unbekannte Aufgabe: freundliche Antwort, keine Freigabe-Karte", async ({
   ).toHaveCount(0);
 });
 
-test("Einstellungen zeigen beide Module", async ({ page }) => {
+test("Einstellungen zeigen alle Demo-Module", async ({ page }) => {
   await page.goto("/einstellungen");
 
   await expect(
@@ -133,6 +133,12 @@ test("Einstellungen zeigen beide Module", async ({ page }) => {
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 3, name: "Aufgaben & Fristen (Demo)" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Posteingang (Demo)" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Notizen (Demo)" }),
   ).toBeVisible();
   await expect(
     page.getByText("Gedächtnis und Konto kommen mit dem Anschluss-Block dazu."),

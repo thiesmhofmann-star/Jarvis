@@ -186,9 +186,9 @@ Zusammengesteckt wird alles in `src/core/assistant/jarvis.ts`. Nur dort ändert 
 - Der Chat-Ablauf fragt das Gehirn so lange, bis es mit Text antwortet; höchstens 5 Schritte. Bei einem Schreib-Werkzeug hält er an und zeigt die Freigabe-Karte.
 
 **Demo-Gehirn** (`src/core/assistant/demo-gehirn/`)
-- Erkennt per Schlüsselwörtern, welches Werkzeug passt, und nutzt nur Werkzeuge, die ihm angeboten werden. Die Regeln liegen je Modul in eigenen Dateien (`kalender-regeln.ts`, `aufgaben-regeln.ts`); `regeln.ts` legt ihre Reihenfolge fest.
+- Erkennt per Schlüsselwörtern, welches Werkzeug passt, und nutzt nur Werkzeuge, die ihm angeboten werden. Die Regeln liegen je Modul in eigenen Dateien (`kalender-regeln.ts`, `termin-pflege-regeln.ts` seit Ticket 9D, `aufgaben-regeln.ts`); `regeln.ts` legt ihre Reihenfolge fest.
 - Jede Regel hat zwei Teile: `erkenne` (erster Schritt zu einer Nachricht von Thies) und `weiter` (nächster Schritt, nachdem ein Werkzeug gelaufen ist: antworten oder ein weiteres Werkzeug aufrufen). So sind Abläufe in mehreren Schritten möglich, z. B. erst lesen, dann abhaken (seit Ticket 8D).
-- Versteht „heute“, „morgen“, „übermorgen“, Wochentage (der nächste, heute zählt mit), „diese Woche“ (bis einschließlich Sonntag; ist heute Sonntag, dann heute) und Uhrzeiten wie „10 Uhr“, „um 10“, „10:30“. Fehlt Tag oder Uhrzeit für einen Termin, fragt es nach.
+- Versteht „heute“, „morgen“, „übermorgen“, Wochentage (der nächste, heute zählt mit), „diese Woche“ (bis einschließlich Sonntag; ist heute Sonntag, dann heute) und Uhrzeiten wie „10 Uhr“, „um 10“, „10:30“. Fehlt Tag oder Uhrzeit für einen Termin, fragt es nach. Seit Ticket 9D auch „nächste Woche“ (Montag bis Sonntag der Woche danach) und „jeden Mittwoch“, „mittwochs“, „jede Woche“ (Abschnitt 16).
 - Sonst antwortet es freundlich, dass es das im Demo-Modus noch nicht kann.
 - Fasst Werkzeug-Ergebnisse in Sätze. Die Regeln kennen die Demo-Werkzeuge beim Namen; sie verschwinden mit dem Demo-Gehirn. Claude erkennt Werkzeuge später an ihrer Beschreibung.
 - **Im Demo-Modus braucht ein neues Modul deshalb zusätzlich Regeln im Demo-Gehirn.** Mit Claude fallen sie weg; dann reicht wieder: neuer Ordner plus Eintrag in der Registry.
@@ -197,6 +197,7 @@ Zusammengesteckt wird alles in `src/core/assistant/jarvis.ts`. Nur dort ändert 
 - `termine_am_tag` (lesen): Termine eines Tages, ohne Angabe heute. Ersetzt das ursprünglich geplante `termine_heute` (Entscheidung Thies, 10.10.2026), damit ein eingetragener Termin z. B. am Freitag auch sichtbar wird („Was steht Freitag an?“).
 - `termin_anlegen` (schreiben, mit `preview`): legt einen Demo-Termin an (Titel, Beginn, Dauer, Standard 60 Minuten).
 - Jede Sitzung startet mit drei erfundenen Terminen für heute. Höchstens 50 Termine je Sitzung.
+- Seit Ticket 9D: Dauertermine, Suchen, Ändern und Absagen (Abschnitt 16).
 
 **Ablauf der Schutzschicht**
 1. Das Gehirn will ein Werkzeug nutzen. Die Schutzschicht prüft die Eingabe mit dem Zod-Schema des Werkzeugs.
@@ -211,7 +212,7 @@ Die Ablage folgt der Schnittstelle `AktionsSpeicher` (`anlegen`, `holen`, `speic
 
 **Zustand und Grenzen im Demo-Modus**
 - Der Browser erzeugt beim ersten Senden eine zufällige Sitzungs-ID und hält sie nur im Speicher. Nach dem Neuladen beginnt eine neue Sitzung mit leerem Verlauf.
-- Der Server hält je Sitzung Verlauf (höchstens 100 Nachrichten), ausstehende Aktionen (höchstens 50), Demo-Termine (höchstens 50) und Demo-Aufgaben (höchstens 50). Insgesamt höchstens 200 Sitzungen. Nach 2 Stunden ohne Nutzung verfällt eine Sitzung (`src/lib/sitzungs-speicher.ts`).
+- Der Server hält je Sitzung Verlauf (höchstens 100 Nachrichten), ausstehende Aktionen (höchstens 50), Demo-Termine (höchstens 50; ein Dauertermin zählt als 1 und hat höchstens 20 einzelne Änderungen) und Demo-Aufgaben (höchstens 50). Insgesamt höchstens 200 Sitzungen. Nach 2 Stunden ohne Nutzung verfällt eine Sitzung (`src/lib/sitzungs-speicher.ts`).
 - Auf Vercel gehört dieser Speicher zu einer einzelnen laufenden Funktion. Startet Vercel sie neu oder beantwortet eine andere Instanz die Anfrage, kennt sie die Sitzung nicht. Dann meldet die Freigabe „Diese Freigabe gibt es nicht mehr.“ Im Demo-Modus ist das hinnehmbar; im Anschluss-Block löst die Datenbank das.
 - Nachrichten und Freigaben laufen über dieselbe Route, damit sie sicher denselben Speicher teilen.
 
@@ -222,7 +223,7 @@ Die Ablage folgt der Schnittstelle `AktionsSpeicher` (`anlegen`, `holen`, `speic
 | `aktionenImArbeitsspeicher()` | Tabelle `pending_actions` |
 | `gespraecheImArbeitsspeicher()` | Tabellen `conversations` und `messages` |
 | zufällige Sitzungs-ID aus dem Browser | Nutzer-ID aus dem Login (Better Auth) |
-| Modul `kalender-demo` in der Registry | Modul Kalender mit Google |
+| Modul `kalender-demo` in der Registry | Modul Kalender mit Google (Abschnitt 16) |
 | Modul `aufgaben-demo` in der Registry | Modul To-dos & Fristen mit Datenbank |
 | Regeln im Demo-Gehirn je Modul | entfallen (Claude liest die Werkzeug-Beschreibungen) |
 
@@ -249,6 +250,148 @@ Hintergrund: Thies' größtes Problem sind Termine und Fristen, die er im Kopf b
 - Chat: Beispielsätze „Was steht heute an?“, „Trag Zahnarzt Freitag 10 Uhr ein“, „Was ist diese Woche fällig?“.
 - Einstellungen: Liste „Aktive Module“ direkt aus der Registry (Name und Beschreibung, nur anzeigen). Darunter der Hinweis, dass Gedächtnis und Konto mit dem Anschluss-Block dazukommen. Die nicht mehr genutzte Komponente `leer-zustand.tsx` ist entfernt.
 
+## 16. Termine pflegen und Dauertermine im Demo-Modus (Ticket 9D)
+Ticket 9D macht den Demo-Kalender pflegbar: Termine verschieben, absagen und jede Woche wiederholen. Es bleibt beim Demo-Modus: erfundene Daten, nur im Arbeitsspeicher, je Sitzung, mit Obergrenzen; keine neuen Pakete. Ändern und Absagen sind Schreib-Werkzeuge und laufen nur über die Schutzschicht mit Freigabe-Karte. Am Kern hat sich nichts geändert; neu sind Dateien im Modul und Regeln im Demo-Gehirn.
+
+**Dauertermine** (`src/modules/kalender-demo/serien.ts`)
+- Nur wöchentlich: gleicher Wochentag, gleiche Uhrzeit, gleiche Dauer, ab einem Starttag, optional bis zu einem Endtag, dazu abgesagte Tage (Ausnahmen) und einzeln geänderte Vorkommen.
+- Die Uhrzeit steht als Berliner Ortszeit, nicht als fester Zeitpunkt. Jedes Vorkommen wird für seinen Tag neu umgerechnet. So bleibt 18 Uhr auch nach der Zeitumstellung am 25.10.2026 18 Uhr (Test vorhanden).
+- Ein **Vorkommen** ist ein einzelnes Mal eines Dauertermins. Lese-Werkzeuge liefern es wie einen Termin, mit `id` = Serien-ID und `vorkommen` = Tag, an dem es planmäßig stattfindet. Beides zusammen benennt genau dieses eine Mal.
+- Jede Sitzung startet zusätzlich mit dem Dauertermin „Training“: heute, 20:00–21:30 Uhr, seit drei Wochen. So gibt es frühere Vorkommen, an denen man sieht, dass „ab diesem Termin immer“ sie nicht ändert.
+- Grenzen: Ein Dauertermin zählt als 1 der höchstens 50 Einträge. Je Dauertermin höchstens 20 Ausnahmen und Einzeländerungen zusammen. `termine_suchen` durchsucht höchstens ein Jahr auf einmal.
+
+**Werkzeuge im Modul `kalender-demo`**
+| Werkzeug | Art | Was es tut |
+|---|---|---|
+| `termine_am_tag` | lesen | Termine eines Tages, jetzt mit Vorkommen von Dauerterminen |
+| `termine_suchen` | lesen | Termine, deren Titel alle Wörter aus `text` enthält; ohne Zeitraum heute und die nächsten 30 Tage |
+| `termin_anlegen` | schreiben | wie bisher; mit `woechentlich: true` als Dauertermin |
+| `termin_aendern` | schreiben | ändert Beginn, Dauer und/oder Titel; mindestens eine Änderung nötig |
+| `termin_absagen` | schreiben | entfernt einen Termin aus dem Demo-Kalender; benachrichtigt niemanden |
+
+- Bei Dauerterminen brauchen `termin_aendern` und `termin_absagen` zusätzlich `vorkommen` und `umfang`: `nur_dieses_mal` oder `ab_diesem_termin`. Bei Einzelterminen sind beide verboten.
+- **Nur dieses Mal ändern:** Das Vorkommen bekommt eine Einzeländerung; die anderen Wochen bleiben.
+- **Ab diesem Termin immer ändern:** Die alte Serie endet am Tag vor dem Vorkommen, eine neue Serie beginnt mit den neuen Werten. Ist es das erste Vorkommen, wird die Serie einfach ersetzt. Ausnahmen und Einzeländerungen ab diesem Tag fallen weg. Der neue Beginn darf höchstens 6 Tage vom Vorkommen entfernt liegen, sonst gäbe es eine Woche mit zwei oder ohne Vorkommen.
+- **Nur dieses Mal absagen:** Der Tag wird eine Ausnahme. **Ab diesem Termin absagen:** Die Serie endet davor; ist es das erste Vorkommen, verschwindet sie ganz.
+- Fehler kommen als deutsche Sätze, schon in der Vorschau, und werden beim Ausführen noch einmal geprüft: unbekannte ID, Tag ohne Vorkommen (falscher Wochentag, abgesagt, außerhalb der Serie), `vorkommen`/`umfang` beim Einzeltermin, fehlende Angaben beim Dauertermin, keine oder keine wirksame Änderung, Kalender voll.
+- Die Freigabe-Karten zeigen beim Ändern „Bisher“ und „Neu“ als Begriff und Wert (`<dt>`/`<dd>`), dazu „Gilt für“, z. B. „Nur am Dienstag, 13. Oktober“ oder „Ab Dienstag, 13. Oktober jede Woche“. Zeitspannen stehen als „20:00 bis 21:30 Uhr“, damit ein Screenreader sie eindeutig vorliest. Beim Absagen sagt „Fällt weg“, was verschwindet. Die Karte selbst ist unverändert; das Modul liefert nur andere Zeilen.
+
+**Annahme zum späteren Google-Verhalten** (Belegstufe: plausibel – beim echten Kalender-Modul in der Google-Doku prüfen): „Ab diesem Termin immer“ entspricht in Google Kalender „Dieser und alle folgenden Termine“. Wir nehmen an, dass Google das genauso löst: Die alte Serie endet vor dem Vorkommen (Wiederholungsregel mit Ende), eine neue Serie beginnt dort.
+
+**So wird es später mit dem echten Google Kalender** (Annahmen, Belegstufe: plausibel; beim Bau des Moduls Kalender in der Google-Doku prüfen)
+| Demo-Werkzeug | Google Calendar API |
+|---|---|
+| `termine_am_tag` | `events.list` für den Tag, mit `singleEvents=true` (Google rechnet Dauertermine in einzelne Vorkommen aus) |
+| `termine_suchen` | `events.list` mit Suchtext `q` und Zeitraum; `q` durchsucht bei Google mehr als nur den Titel |
+| `termin_anlegen` | `events.insert`; wöchentlich mit Wiederholungsregel `RRULE:FREQ=WEEKLY` und Zeitzone `Europe/Berlin` |
+| `termin_aendern` | Einzeltermin: `events.patch`. Nur dieses Mal: `events.patch` auf das Vorkommen. Ab diesem Termin: alte Serie mit Ende versehen, neue Serie anlegen |
+| `termin_absagen` | Einzeltermin und nur dieses Mal: `events.delete`. Ab diesem Termin: alte Serie mit Ende versehen |
+
+- Dafür braucht der echte Kalender die Schreib-Berechtigung `calendar.events` statt nur `calendar.events.readonly`. **Nur mit Thies' Freigabe** (siehe CLAUDE.md, Fallstricke).
+- Ob Google beim Ändern oder Absagen Gäste benachrichtigt, steuert ein eigener Parameter. Das entscheidet Thies mit dem Modul Kalender; bis dahin benachrichtigt Jarvis niemanden.
+- **Entfällt** mit Google und Claude: die Dauertermin-Rechnung (`serien.ts`, Ausnahmen, Einzeländerungen, Startdaten), die Obergrenzen im Arbeitsspeicher und die Regeln im Demo-Gehirn. **Bleibt:** Werkzeug-Namen und -Eingaben, Freigabe-Karten über `preview`, die Schutzschicht und der Chat.
+
+**Demo-Gehirn** (`src/core/assistant/demo-gehirn/termin-pflege-regeln.ts`)
+- Ändern („Verschieb … auf 19 Uhr“, „Training ist ab jetzt immer um 19 Uhr“) und Absagen („Sag Training am Dienstag ab“, „Training fällt nächste Woche aus“, „Lösche …“) laufen in zwei Schritten, wie später bei Claude: erst lesen, dann den gewählten Termin über seine ID ändern oder absagen.
+  - Gelesen wird mit `termine_am_tag`, wenn ein Tag genannt ist, mit `termine_suchen` für „nächste Woche“, sonst mit `termine_suchen` für die nächsten 30 Tage.
+  - Ohne Tag gilt das nächste Vorkommen; heute zählt mit, auch wenn der Termin schon vorbei ist.
+  - Wohin: Was nach „auf“ steht, ist das Ziel („auf Mittwoch“, „auf 19 Uhr“). Nur Uhrzeit genannt → der Tag bleibt. Nur Tag genannt → die Uhrzeit bleibt. Bei zwei Uhrzeiten zählt die letzte.
+  - Umfang: „ab jetzt“, „ab sofort“, „ab heute“, „immer“, „künftig“, „zukünftig“, „jede Woche“, „dauerhaft“, „ab nächster Woche“ → ab diesem Termin immer. Sonst nur dieses Mal.
+  - Passen verschiedene Titel, fragt Jarvis nach und nennt sie. Ein genau passender Titel gewinnt. Passt keiner, sagt Jarvis das freundlich.
+- „Trag jeden Mittwoch 20 Uhr Chorprobe ein“ (auch „mittwochs“, „jede Woche“, „wöchentlich“) → `termin_anlegen` mit `woechentlich: true`.
+- „Wann ist Training?“ → `termine_suchen`, listet die Treffer der nächsten 30 Tage. Ändert nichts. Diesen Lese-Satz hat Thies am 10.10.2026 zusätzlich freigegeben, damit man sieht, dass ein abgesagtes Vorkommen fehlt und die Woche darauf wieder da ist.
+- In der Tagesliste stehen Vorkommen mit „(jede Woche)“.
+- Jarvis verspricht keine Benachrichtigungen. Absagen heißt nur: aus dem Demo-Kalender entfernen.
+
+**Oberfläche**
+- Chat: vierter Beispielsatz „Training ist ab jetzt immer um 19 Uhr“. Die Antwort auf Unbekanntes nennt zusätzlich „Verschieb Laufen im Park auf 19 Uhr“.
+
+## 17. Tagesüberblick im Demo-Modus (Ticket A)
+Ein Satz, ein Überblick: „Wie sieht mein Tag aus?“, „Briefing“, „Guten Morgen“ oder „Gib mir einen Überblick“ liefert die Termine des Tages und alles, was bis dahin fällig oder überfällig ist. Mit Tag („Wie sieht Freitag aus?“) für diesen Tag. Nur lesen, keine Freigabe-Karte.
+
+- Kein eigenes Modul, sondern eine Regel im Demo-Gehirn (`ueberblick-regeln.ts`). Sie nutzt die vorhandenen Lese-Werkzeuge in zwei Schritten: erst `termine_am_tag`, dann `aufgaben_anzeigen` mit `faelligBis`. So arbeitet später auch Claude: Es verbindet Werkzeuge verschiedener Module, ohne dass ein Modul das andere kennt.
+- Dafür bekommt `weiter` im Demo-Gehirn zusätzlich die Werkzeug-Schritte davor zur selben Nachricht (`bisher`). Das betrifft nur das Demo-Gehirn, nicht den Kern.
+- „Guten Morgen“ zählt nicht mehr als „morgen“ (galt für alle Sätze).
+- Chat: neuer erster Beispielsatz „Wie sieht mein Tag aus?“.
+- Mit Claude entfällt die Regel; ein Briefing-Modul mit mehr Quellen (z. B. Posteingang) ist ein eigenes Ticket.
+
+## 18. Termine: Dauer, Titel und Datum im Demo-Modus (Ticket B)
+Das Demo-Gehirn versteht mehr Sätze; die Werkzeuge bleiben unverändert (`termin_aendern` konnte Dauer und Titel schon seit Ticket 9D).
+
+- **Datumsangaben** in allen Sätzen (Termine, Aufgaben, Überblick): „21.10.“, „21.10.2026“, „21. Oktober“, „am 3. November 2026“. Ohne Jahr gilt der nächste solche Tag, heute zählt mit. Tage, die es nicht gibt (31.4.), zählen nicht. „um 9.10“ und „9.10 Uhr“ bleiben Uhrzeiten.
+- **Dauer:** „Training dauert ab jetzt 2 Stunden“, „… dauert 90 Minuten“, „eine halbe Stunde“, „anderthalb Stunden“, „1 Stunde und 30 Minuten“. Erlaubt sind 5 Minuten bis 24 Stunden; sonst fragt Jarvis nach.
+- **Neuer Titel:** „Benenne X um in Y“, „Benenne X in Y um“, „X heißt ab jetzt Y“, „Ändere den Titel von X in Y“. Bei Dauerterminen gilt dieselbe Umfang-Regel wie beim Verschieben: mit „ab jetzt“, „immer“ usw. ab diesem Termin, sonst nur dieses Mal. Die Karte zeigt dann den alten und den neuen Titel bei „Bisher“ und „Neu“.
+- Mehreres in einem Satz geht: „Verschieb Laufen im Park auf 19 Uhr, es dauert 90 Minuten“.
+- Fragen („Wie lange dauert Training?“, „Wie heißt …?“) und Sätze wie „Das heißt, …“ sind keine Änderungen.
+
+## 19. Aufgaben pflegen im Demo-Modus (Ticket C)
+Die Demo-Aufgabenliste lässt sich jetzt pflegen. Alles Ändernde läuft über die Schutzschicht mit Freigabe-Karte.
+
+**Neue und erweiterte Werkzeuge im Modul `aufgaben-demo`**
+| Werkzeug | Art | Was es tut |
+|---|---|---|
+| `aufgaben_anzeigen` | lesen | neu mit `status`: `offen` (Standard), `erledigt` oder `alle` |
+| `aufgabe_aendern` | schreiben | Titel und/oder Frist einer offenen Aufgabe; `frist: null` entfernt die Frist; mindestens eine wirksame Änderung |
+| `aufgabe_loeschen` | schreiben | entfernt eine Aufgabe (offen oder erledigt) von der Liste |
+| `aufgabe_wieder_oeffnen` | schreiben | setzt eine erledigte Aufgabe wieder auf offen |
+
+- Karten: „Aufgabe ändern“ mit „Bisher“ und „Neu“ (Frist, bei neuem Titel auch der Titel), „Aufgabe löschen“ mit Stand (offen/erledigt), „Aufgabe wieder öffnen“.
+- Fehler auf Deutsch: unbekannte ID, schon erledigt (beim Ändern), noch offen (beim Wieder-Öffnen), keine oder keine wirksame Änderung.
+
+**Demo-Gehirn** (`aufgaben-pflege-regeln.ts`, alle in zwei Schritten: erst lesen, dann über die ID)
+- Frist: „Steuererklärung hat Zeit bis Montag“, „Verschieb die Frist für Steuer auf den 20.10.“, „Steuer hat keine Frist mehr“.
+- Titel: „Benenne die Aufgabe Urlaubsfotos um in Fotobuch gestalten“ (mit dem Wort „Aufgabe“; ohne bleibt es ein Termin).
+- Löschen: „Lösch die Aufgabe …“, „Streich … von der Liste“. Ohne „Aufgabe“ oder „Liste“ bleibt „Lösch …“ ein Termin.
+- „Was habe ich erledigt?“ → erledigte Aufgaben. „… ist doch nicht erledigt“, „Öffne … wieder“ → wieder öffnen.
+- Diese Regeln stehen in `regeln.ts` vor dem Abhaken; „Neue Aufgabe: …“ bleibt immer Anlegen.
+- Im Anschluss-Block werden daraus Tabellen-Operationen im Modul To-dos & Fristen; die Werkzeug-Namen bleiben.
+
+## 20. Modul Posteingang im Demo-Modus (Ticket D)
+Ein drittes Demo-Modul: neuer Ordner `src/modules/posteingang-demo/` plus ein Eintrag in der Registry; am Kern ändert sich nichts.
+
+**Daten:** Jede Sitzung startet mit vier erfundenen Mails der letzten Tage (Hausverwaltung, Fahrradladen, eine Kollegin, Bibliothek). Alle Adressen enden auf `.example`, eine Endung, die es im Internet nie geben wird. Höchstens 20 Antwort-Entwürfe je Sitzung. Nur im Arbeitsspeicher.
+
+**Werkzeuge**
+| Werkzeug | Art | Was es tut |
+|---|---|---|
+| `mails_anzeigen` | lesen | Mails, neueste zuerst, mit Absender, Betreff und Vorschau (höchstens 80 Zeichen); mit `suche` nur passende (Absender oder Betreff) |
+| `mail_lesen` | lesen | eine Mail mit vollem Text über ihre ID |
+| `antwort_entwurf_anlegen` | schreiben | legt einen Antwort-Entwurf ab; Karte „Antwort-Entwurf speichern“ mit An, Betreff, Text und dem Satz „Gesendet wird nichts.“ |
+| `entwuerfe_anzeigen` | lesen | gespeicherte Entwürfe |
+
+**Es gibt kein Werkzeug zum Senden.** Ein Test prüft das. Senden wäre ein eigenes Ticket und bräuchte Thies' Freigabe.
+
+**Demo-Gehirn** (`posteingang-regeln.ts`)
+- „Was ist neu im Posteingang?“, „Meine Mails“ → Liste.
+- „Zeig die Mail von der Hausverwaltung“, „Was schreibt Lena?“ → zwei Schritte: suchen, dann lesen. Kommen Treffer von mehreren Absendern, fragt Jarvis nach.
+- „Antworte der Hausverwaltung: Donnerstag passt, danke!“ → suchen, dann Entwurf mit Freigabe-Karte. Der Text steht nach dem Doppelpunkt und bleibt unverändert. Ohne Text oder Empfänger fragt Jarvis nach.
+- „Meine Entwürfe“ → Liste der Entwürfe.
+- Sätze mit „Neue Aufgabe: Mail …“ oder „Trag Mails beantworten … ein“ bleiben Aufgabe bzw. Termin.
+
+**So wird es später mit Gmail** (Annahmen, Belegstufe: plausibel; beim Bau des Moduls Posteingang in der Google-Doku prüfen)
+| Demo-Werkzeug | Gmail API |
+|---|---|
+| `mails_anzeigen` | `users.messages.list` mit Suchanfrage `q`, dann Kopfzeilen per `users.messages.get` |
+| `mail_lesen` | `users.messages.get` |
+| `antwort_entwurf_anlegen` | `users.drafts.create` |
+| `entwuerfe_anzeigen` | `users.drafts.list` |
+
+- Dafür bräuchte Jarvis Gmail-Berechtigungen (lesen und Entwürfe anlegen). Sie gelten bei Google als eingeschränkt bzw. sensibel; ein Prüfverfahren ist möglich. **Gmail-Berechtigungen nie ohne Thies' Freigabe** (CLAUDE.md, Fallstricke).
+- Entfällt dann: erfundene Mails, Obergrenze im Arbeitsspeicher, Regeln im Demo-Gehirn. Bleibt: Werkzeug-Namen, Karte, Schutzschicht.
+
+## 21. Modul Notizen im Demo-Modus (Ticket E)
+Ein viertes Demo-Modul: `src/modules/notizen-demo/` plus ein Eintrag in der Registry; am Kern ändert sich nichts.
+
+- **Daten:** Jede Sitzung startet mit zwei erfundenen Notizen. Höchstens 50 Notizen zu je höchstens 500 Zeichen, nur im Arbeitsspeicher.
+- **Werkzeuge:** `notizen_anzeigen` (lesen, neueste zuerst, mit `suche` nur die mit allen Wörtern), `notiz_anlegen` (schreiben, Karte „Notiz anlegen“), `notiz_loeschen` (schreiben über die ID, Karte „Notiz löschen“).
+- **Demo-Gehirn** (`notizen-regeln.ts`):
+  - „Notiz: …“, „Neue Notiz: …“, „Mach mir eine Notiz: …“, „Schreib dir auf: …“ → anlegen. Der Text bleibt unverändert, auch mit Uhrzeiten oder Satzzeichen, denn diese Regel steht ganz vorn.
+  - „Meine Notizen“, „Was habe ich mir notiert?“, „Notizen zu Kochbuch“ → anzeigen.
+  - „Lösch die Notiz Kochbuch“ → zwei Schritte: suchen, dann über die ID löschen. Passen mehrere, fragt Jarvis nach.
+  - „Notier Zahnarzt Freitag 10 Uhr“ bleibt wie bisher ein Termin.
+- Abgrenzung zum Gedächtnis (Anschluss-Block): Notizen legt Thies ausdrücklich ab und sieht sie als Liste. Das Gedächtnis merkt sich später selbstständig, was Jarvis über Thies wissen soll.
+- Im Anschluss-Block bekommen Notizen eine eigene Tabelle; die Werkzeug-Namen bleiben.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css
@@ -263,6 +406,8 @@ Hintergrund: Thies' größtes Problem sind Termine und Fristen, die er im Kopf b
 - Vercel Hobby: https://vercel.com/docs/plans/hobby
 - Google OAuth Testmodus: https://developers.google.com/health/setup
 - Google Calendar Scopes: https://developers.google.com/calendar/api/auth
+- Google Calendar, Dauertermine (für Abschnitt 16 noch zu prüfen): https://developers.google.com/calendar/api/guides/recurringevents
+- Gmail API und Berechtigungen (für Abschnitt 20 noch zu prüfen): https://developers.google.com/workspace/gmail/api/auth/scopes
 - Neon Zweig `production`, Pooling: https://neon.com/faqs/where-find-database-connection-string
 - Claude-Code-Umgebungen: https://code.claude.com/docs/en/cloud-environments
 - Versionen und Freigabe-Tags (09.10.2026): npm-Registry – https://www.npmjs.com/package/next · https://www.npmjs.com/package/typescript · https://www.npmjs.com/package/typescript-eslint · https://www.npmjs.com/package/ai · https://www.npmjs.com/package/better-auth

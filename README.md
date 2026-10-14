@@ -3,17 +3,30 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket 8D – Aufgaben & Fristen im Demo-Modus. Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt zwei Demo-Module mit erfundenen Daten: einen Kalender und eine Aufgabenliste mit Fristen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket E – Notizen im Demo-Modus (auf Ticket 9D, A, B, C und D). Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt vier Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen, eine Aufgabenliste mit Fristen, einen Posteingang und Notizen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
 
 ## Demo-Modus ausprobieren
 
 Im Bereich „Jarvis“ zum Beispiel:
 
+- „Wie sieht mein Tag aus?“ (oder „Guten Morgen“, „Briefing“) → Termine von heute und alles, was bis heute fällig ist, in einer Antwort. „Wie sieht Freitag aus?“ für einen anderen Tag.
 - „Was steht heute an?“ → Jarvis listet die Demo-Termine von heute.
 - „Trag Zahnarzt Freitag 10 Uhr ein“ → eine Freigabe-Karte erscheint. Erst „Freigeben“ trägt den Termin ein; „Ablehnen“ ändert nichts. Danach zeigt „Was steht Freitag an?“ den Termin.
 - „Neue Aufgabe: Steuererklärung abgeben bis Freitag“ → Freigabe-Karte, nach „Freigeben“ steht die Aufgabe auf der Demo-Liste. Ohne Frist geht es auch („Neue Aufgabe: Fahrrad aufpumpen“).
 - „Was ist diese Woche fällig?“ → offene Aufgaben bis Sonntag, Überfälliges zuerst. „Meine Aufgaben“ → alle offenen.
 - „Steuererklärung ist erledigt“ → Freigabe-Karte „Aufgabe abhaken“; erst „Freigeben“ hakt sie ab. Gibt es keine passende Aufgabe, sagt Jarvis das freundlich.
+- „Verschieb Laufen im Park auf 19 Uhr“ → Freigabe-Karte mit „Bisher“ und „Neu“. Nach „Freigeben“ zeigt „Was steht heute an?“ die neue Zeit.
+- „Training ist ab jetzt immer um 19 Uhr“ → Karte mit „Gilt für: Ab … jede Woche“. Danach ist Training ab heute jede Woche um 19 Uhr, frühere Wochen bleiben.
+- „Training fällt nächste Woche aus“ oder „Sag Training am Samstag ab“ (Training liegt in jeder neuen Sitzung auf dem heutigen Wochentag, 20 Uhr) → Karte „Termin absagen“ mit „Fällt weg: Nur am …“. Danach fehlt nur dieses eine Mal.
+- „Trag jeden Mittwoch 20 Uhr Chorprobe ein“ → Karte „Dauertermin anlegen“ mit „Jede Woche am Mittwoch“.
+- „Training dauert ab jetzt 2 Stunden“, „Benenne Laufen im Park um in Joggen“ → Karte „Termin ändern“ mit Bisher und Neu.
+- Datumsangaben gehen überall: „Was steht am 21. Oktober an?“, „Trag Zahnarzt am 3.11. um 9 Uhr ein“, „Neue Aufgabe: Steuer bis 31.10.“.
+- „Wann ist Training?“ → alle Termine mit diesem Titel in den nächsten 30 Tagen. So sieht man, was ausfällt und was wieder da ist.
+- „Ablehnen“ ändert in allen Fällen nichts. Gibt es keinen passenden Termin („Verschieb Fliegen lernen auf 10 Uhr“), sagt Jarvis das freundlich.
+- Aufgaben pflegen: „Paket zur Post hat Zeit bis Montag“, „Steuer hat keine Frist mehr“, „Lösch die Aufgabe Urlaubsfotos“, „Was habe ich erledigt?“, „Paket ist doch nicht erledigt“ → jeweils mit Freigabe-Karte (außer der Liste).
+- „Was ist neu im Posteingang?“, „Zeig die Mail von der Hausverwaltung“, „Was schreibt Lena?“ → erfundene Mails lesen.
+- „Antworte der Hausverwaltung: Donnerstag passt, danke!“ → Karte „Antwort-Entwurf speichern“. Erst „Freigeben“ legt den Entwurf ab; gesendet wird nie etwas. „Meine Entwürfe“ zeigt sie.
+- „Notiz: Geschenkidee für Mama – Kochbuch“ → Karte „Notiz anlegen“. „Meine Notizen“, „Notizen zu Kochbuch“, „Lösch die Notiz Kochbuch“.
 - Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
 
 Unter „Einstellungen“ stehen die aktiven Module.
@@ -33,7 +46,7 @@ Nach dem Neuladen ist alles wieder auf Anfang.
 - **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
 - **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
 
-Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle) und 14 (Kern im Demo-Modus).
+Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine), 17 (Tagesüberblick), 18 (Dauer, Titel, Datum), 19 (Aufgaben pflegen), 20 (Posteingang) und 21 (Notizen).
 
 ## Lokal starten
 

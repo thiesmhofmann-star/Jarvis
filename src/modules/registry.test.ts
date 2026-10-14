@@ -40,19 +40,34 @@ describe("Registry", () => {
     ).toThrow(/doppelt/);
   });
 
-  it("liefert die Werkzeuge beider Demo-Module, Namen eindeutig", () => {
+  it("liefert die Werkzeuge aller Demo-Module, Namen eindeutig", () => {
     expect(registrierteModule.map((m) => m.id)).toEqual([
       "kalender-demo",
       "aufgaben-demo",
+      "posteingang-demo",
+      "notizen-demo",
     ]);
     expect(
       werkzeuge.map((w) => [w.modulId, w.name, w.werkzeug.effect]),
     ).toEqual([
       ["kalender-demo", "termine_am_tag", "read"],
+      ["kalender-demo", "termine_suchen", "read"],
       ["kalender-demo", "termin_anlegen", "write"],
+      ["kalender-demo", "termin_aendern", "write"],
+      ["kalender-demo", "termin_absagen", "write"],
       ["aufgaben-demo", "aufgaben_anzeigen", "read"],
       ["aufgaben-demo", "aufgabe_anlegen", "write"],
       ["aufgaben-demo", "aufgabe_erledigen", "write"],
+      ["aufgaben-demo", "aufgabe_aendern", "write"],
+      ["aufgaben-demo", "aufgabe_loeschen", "write"],
+      ["aufgaben-demo", "aufgabe_wieder_oeffnen", "write"],
+      ["posteingang-demo", "mails_anzeigen", "read"],
+      ["posteingang-demo", "mail_lesen", "read"],
+      ["posteingang-demo", "antwort_entwurf_anlegen", "write"],
+      ["posteingang-demo", "entwuerfe_anzeigen", "read"],
+      ["notizen-demo", "notizen_anzeigen", "read"],
+      ["notizen-demo", "notiz_anlegen", "write"],
+      ["notizen-demo", "notiz_loeschen", "write"],
     ]);
     const namen = werkzeuge.map((w) => w.name);
     expect(new Set(namen).size).toBe(namen.length);

@@ -14,8 +14,17 @@ export type DemoRegel = {
   werkzeuge: readonly string[];
   /** Erster Schritt zu einer Nachricht von Thies, oder null, wenn die Regel nicht passt. */
   erkenne(text: string, jetzt: Date): GehirnAntwort | null;
-  /** Nächster Schritt, nachdem eines ihrer Werkzeuge gelaufen ist: Antwort oder weiterer Aufruf. */
-  weiter(schritt: WerkzeugSchritt, text: string, jetzt: Date): GehirnAntwort;
+  /**
+   * Nächster Schritt, nachdem eines ihrer Werkzeuge gelaufen ist: Antwort oder
+   * weiterer Aufruf. `bisher` sind die Werkzeug-Schritte davor zur selben
+   * Nachricht von Thies, damit eine Antwort mehrere Ergebnisse verbinden kann.
+   */
+  weiter(
+    schritt: WerkzeugSchritt,
+    text: string,
+    jetzt: Date,
+    bisher: readonly WerkzeugSchritt[],
+  ): GehirnAntwort;
 };
 
 export const sage = (text: string): GehirnAntwort => ({ art: "text", text });

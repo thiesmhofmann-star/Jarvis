@@ -108,6 +108,16 @@ export function formatiereTag(datum: string): string {
   return tagFormat.format(new Date(`${datum}T12:00:00Z`));
 }
 
+const wochentagFormat = new Intl.DateTimeFormat("de-DE", {
+  timeZone: "UTC",
+  weekday: "long",
+});
+
+/** „Freitag“ */
+export function formatiereWochentag(datum: string): string {
+  return wochentagFormat.format(new Date(`${datum}T12:00:00Z`));
+}
+
 const uhrzeitFormat = new Intl.DateTimeFormat("de-DE", {
   timeZone: ZEITZONE,
   hour: "2-digit",
