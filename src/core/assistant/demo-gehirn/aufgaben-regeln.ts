@@ -32,7 +32,8 @@ function findeFrist(w: Woerter, jetzt: Date) {
   return findeDieseWoche(w, jetzt);
 }
 
-function fristBeschreibung(aufgabe: AufgabeAnsicht, heute: string) {
+/** „überfällig (Frist war …)“, „fällig heute“, „fällig Freitag, …“, „ohne Frist“ */
+export function fristBeschreibung(aufgabe: AufgabeAnsicht, heute: string) {
   if (aufgabe.frist === undefined) return "ohne Frist";
   if (aufgabe.ueberfaellig) {
     return `überfällig (Frist war ${formatiereTag(aufgabe.frist)})`;

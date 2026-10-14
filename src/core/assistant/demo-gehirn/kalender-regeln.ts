@@ -1,5 +1,6 @@
 import type {
   TerminAnlegenErgebnis,
+  TerminAnsicht,
   TermineAmTagErgebnis,
 } from "@/modules/kalender-demo";
 import {
@@ -25,6 +26,11 @@ function tagBezeichnung(datum: string, jetzt: Date) {
     : `Am ${formatiereTag(datum)},`;
 }
 
+/** „• 09:00–09:30 Uhr: Team-Besprechung“, Dauertermine mit „(jede Woche)“ */
+export function terminZeile(t: TerminAnsicht) {
+  return `• ${formatiereUhrzeit(new Date(t.beginn))}–${formatiereUhrzeit(new Date(t.ende))} Uhr: ${t.titel}${t.vorkommen ? " (jede Woche)" : ""}`;
+}
+
 export const termineAmTag: DemoRegel = {
   werkzeuge: ["termine_am_tag"],
   erkenne(text, jetzt) {
@@ -47,10 +53,7 @@ export const termineAmTag: DemoRegel = {
     if (termine.length === 0) {
       return sage(`${wann} stehen im Demo-Kalender keine Termine.`);
     }
-    const zeilen = termine.map(
-      (t) =>
-        `• ${formatiereUhrzeit(new Date(t.beginn))}–${formatiereUhrzeit(new Date(t.ende))} Uhr: ${t.titel}${t.vorkommen ? " (jede Woche)" : ""}`,
-    );
+    const zeilen = termine.map(terminZeile);
     const anzahl =
       termine.length === 1
         ? "steht 1 Termin"

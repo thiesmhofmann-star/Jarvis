@@ -45,8 +45,10 @@ export function findeTage(w: Woerter, jetzt: Date): TagFund[] {
     const wort = w.klein[i]!;
     let datum: string | null = null;
     if (wort === "heute") datum = heute;
-    else if (wort === "morgen") datum = tagePlus(heute, 1);
-    else if (wort === "übermorgen") datum = tagePlus(heute, 2);
+    // „Guten Morgen“ ist ein Gruß, nicht der Tag morgen.
+    else if (wort === "morgen" && w.klein[i - 1] !== "guten") {
+      datum = tagePlus(heute, 1);
+    } else if (wort === "übermorgen") datum = tagePlus(heute, 2);
     else if (WOCHENTAGE.includes(wort)) {
       datum = naechsterWochentag(jetzt, WOCHENTAGE.indexOf(wort));
     }

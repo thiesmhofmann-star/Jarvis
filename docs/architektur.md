@@ -306,6 +306,15 @@ Ticket 9D macht den Demo-Kalender pflegbar: Termine verschieben, absagen und jed
 **Oberfläche**
 - Chat: vierter Beispielsatz „Training ist ab jetzt immer um 19 Uhr“. Die Antwort auf Unbekanntes nennt zusätzlich „Verschieb Laufen im Park auf 19 Uhr“.
 
+## 17. Tagesüberblick im Demo-Modus (Ticket A)
+Ein Satz, ein Überblick: „Wie sieht mein Tag aus?“, „Briefing“, „Guten Morgen“ oder „Gib mir einen Überblick“ liefert die Termine des Tages und alles, was bis dahin fällig oder überfällig ist. Mit Tag („Wie sieht Freitag aus?“) für diesen Tag. Nur lesen, keine Freigabe-Karte.
+
+- Kein eigenes Modul, sondern eine Regel im Demo-Gehirn (`ueberblick-regeln.ts`). Sie nutzt die vorhandenen Lese-Werkzeuge in zwei Schritten: erst `termine_am_tag`, dann `aufgaben_anzeigen` mit `faelligBis`. So arbeitet später auch Claude: Es verbindet Werkzeuge verschiedener Module, ohne dass ein Modul das andere kennt.
+- Dafür bekommt `weiter` im Demo-Gehirn zusätzlich die Werkzeug-Schritte davor zur selben Nachricht (`bisher`). Das betrifft nur das Demo-Gehirn, nicht den Kern.
+- „Guten Morgen“ zählt nicht mehr als „morgen“ (galt für alle Sätze).
+- Chat: neuer erster Beispielsatz „Wie sieht mein Tag aus?“.
+- Mit Claude entfällt die Regel; ein Briefing-Modul mit mehr Quellen (z. B. Posteingang) ist ein eigenes Ticket.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css

@@ -5,6 +5,7 @@ import {
 } from "./aufgaben-regeln";
 import { terminAnlegen, termineAmTag } from "./kalender-regeln";
 import type { DemoRegel } from "./regel";
+import { tagesueberblick } from "./ueberblick-regeln";
 import {
   terminAbsagen,
   terminAendern,
@@ -18,6 +19,7 @@ import {
  * - „Neue Aufgabe …“ vor „Trag … ein“ (Aufgabe statt Termin),
  * - „Trag einen Termin ein“ vor „Termine“,
  * - Absagen vor Ändern („Training fällt ab jetzt immer aus“ ist eine Absage),
+ * - Tagesüberblick vor den einzelnen Listen („Guten Morgen, was steht an?“),
  * - „Wann ist … fällig?“ (Aufgaben) vor „Wann ist …?“ (Termine),
  * - „Was ist fällig?“ vor „Was steht an?“.
  */
@@ -27,6 +29,7 @@ export const demoRegeln: readonly DemoRegel[] = [
   terminAnlegen,
   terminAbsagen,
   terminAendern,
+  tagesueberblick,
   aufgabenAnzeigen,
   termineSuchen,
   termineAmTag,

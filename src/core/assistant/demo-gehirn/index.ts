@@ -1,16 +1,19 @@
 import type { Gehirn, GehirnAntwort, Nachricht } from "../gehirn";
-import { type DemoRegel, sage } from "./regel";
+import { type DemoRegel, type WerkzeugSchritt, sage } from "./regel";
 import { demoRegeln } from "./regeln";
 
 export const DEMO_ANTWORT =
   "Das kann ich im Demo-Modus noch nicht. Gerade antworte ich mit vorbereiteten Texten und kenne nur den Demo-Kalender und die Demo-Aufgaben. Probier zum Beispiel „Was steht heute an?“, „Trag Zahnarzt Freitag 10 Uhr ein“, „Verschieb Laufen im Park auf 19 Uhr“ oder „Neue Aufgabe: Steuererklärung abgeben bis Freitag“.";
 
-function letzterNutzerText(verlauf: readonly Nachricht[]) {
+/** Letzte Nachricht von Thies und die Werkzeug-Schritte, die seitdem gelaufen sind. */
+function seitLetzterNachricht(verlauf: readonly Nachricht[]) {
+  const schritte: WerkzeugSchritt[] = [];
   for (let i = verlauf.length - 1; i >= 0; i--) {
     const nachricht = verlauf[i]!;
-    if (nachricht.rolle === "nutzer") return nachricht.text;
+    if (nachricht.rolle === "nutzer") return { text: nachricht.text, schritte };
+    if (nachricht.rolle === "werkzeug") schritte.unshift(nachricht);
   }
-  return "";
+  return { text: "", schritte };
 }
 
 /**
@@ -31,7 +34,7 @@ export function erstelleDemoGehirn(
       const letzte = verlauf.at(-1);
 
       if (letzte?.rolle === "werkzeug") {
-        const text = letzterNutzerText(verlauf);
+        const { text, schritte } = seitLetzterNachricht(verlauf);
         const regel =
           // die Regel, die die Nachricht von Thies behandelt hat …
           nutzbar.find(
@@ -41,7 +44,9 @@ export function erstelleDemoGehirn(
           ) ??
           // … sonst die, zu der das Werkzeug in erster Linie gehört.
           nutzbar.find((r) => r.werkzeuge[0] === letzte.name);
-        return regel ? regel.weiter(letzte, text, jetzt) : sage("Erledigt.");
+        return regel
+          ? regel.weiter(letzte, text, jetzt, schritte.slice(0, -1))
+          : sage("Erledigt.");
       }
 
       if (letzte?.rolle !== "nutzer") return sage(DEMO_ANTWORT);
