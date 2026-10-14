@@ -52,6 +52,7 @@ describe("Registry", () => {
     ).toEqual([
       ["kalender-demo", "termine_am_tag", "read"],
       ["kalender-demo", "termine_suchen", "read"],
+      ["kalender-demo", "dauertermine_anzeigen", "read"],
       ["kalender-demo", "termin_anlegen", "write"],
       ["kalender-demo", "termin_aendern", "write"],
       ["kalender-demo", "termin_absagen", "write"],

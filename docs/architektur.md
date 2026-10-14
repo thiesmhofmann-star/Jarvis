@@ -392,6 +392,14 @@ Ein viertes Demo-Modul: `src/modules/notizen-demo/` plus ein Eintrag in der Regi
 - Abgrenzung zum Gedächtnis (Anschluss-Block): Notizen legt Thies ausdrücklich ab und sieht sie als Liste. Das Gedächtnis merkt sich später selbstständig, was Jarvis über Thies wissen soll.
 - Im Anschluss-Block bekommen Notizen eine eigene Tabelle; die Werkzeug-Namen bleiben.
 
+## 22. Kalender aufräumen im Demo-Modus (Ticket F)
+„Lass uns meine festen Termine durchgehen“ startet einen Durchgang durch alle Dauertermine. Jarvis zeigt je Dauertermin Wochentag, Uhrzeit und nächstes Vorkommen und fragt „Stimmt das noch?“.
+
+- **Antworten:** „passt“ → nächster. Eine Änderung („ab jetzt 19 Uhr“, „ab jetzt mittwochs“, „dauert 2 Stunden“, „heißt jetzt …“) → `termin_aendern` mit Umfang „ab diesem Termin“. „gibt es nicht mehr“ → `termin_absagen` mit Umfang „ab diesem Termin“. Beides wie immer mit Freigabe-Karte; nach „Freigeben“ oder „Ablehnen“ geht es mit dem nächsten weiter. „nein“ → Rückfrage, was nicht mehr stimmt. „Stopp“ → Ende mit Zwischenstand. Am Ende eine Zusammenfassung: geändert, entfernt, unverändert.
+- **Neues Lese-Werkzeug** `dauertermine_anzeigen`: alle Dauertermine mit Wochentag, Uhrzeit, Dauer und nächstem Vorkommen ab heute; beendete fehlen. Später bei Google: `events.list` ohne `singleEvents`, Dauertermine an ihrer Wiederholungsregel erkennen (Belegstufe: plausibel, beim echten Kalender-Modul prüfen).
+- **Startdaten:** Zwei weitere erfundene Dauertermine, „Yoga“ (morgen, 10 Uhr) und „Gitarrenunterricht“ (in fünf Tagen, 17 Uhr). Sie liegen nie heute und nie übermorgen, damit die bisherigen Beispiele gleich bleiben.
+- **Ablauf über mehrere Nachrichten:** Das Demo-Gehirn merkt sich nichts zwischen zwei Nachrichten. Es liest den Stand aus dem Gespräch: aus der Liste, die `dauertermine_anzeigen` geliefert hat, und aus „Fester Termin 2 von 3“ in seiner letzten Frage. Dafür bekommen die Regeln jetzt auch das Gespräch vor der aktuellen Nachricht (`davor`); das betrifft nur das Demo-Gehirn, nicht den Kern. Ein Durchgang läuft nur, solange Jarvis' letzte Nachricht eine Durchgangs-Frage war; eine andere Frage dazwischen beendet ihn. Claude braucht diesen Trick später nicht, es liest das Gespräch selbst.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css

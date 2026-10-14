@@ -134,8 +134,8 @@ describe("Demo-Kalender: Dauertermine", () => {
 
   it("zählt einen Dauertermin als einen Eintrag für die Obergrenze von 50", async () => {
     const c = ctx();
-    // Start: 3 Einzeltermine + 1 Dauertermin = 4
-    for (let i = 0; i < 45; i++) {
+    // Start: 3 Einzeltermine + 3 Dauertermine = 6
+    for (let i = 0; i < 43; i++) {
       await ausfuehren(c, "termin_anlegen", {
         titel: `Termin ${i}`,
         beginn: "2026-10-12T09:00:00+02:00",
