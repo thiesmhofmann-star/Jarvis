@@ -3,7 +3,7 @@
 Persönlicher Assistent nach dem Vorbild von Jarvis – für genau einen Nutzer (Thies).
 Geplant sind ein Chat mit Gedächtnis und Fähigkeiten, die als einzelne Module andocken (Kalender, Briefing, To-dos, Posteingang …).
 
-**Stand:** Ticket A – Tagesüberblick im Demo-Modus (auf Ticket 9D). Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt zwei Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen und eine Aufgabenliste mit Fristen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
+**Stand:** Ticket B – Termine: Dauer, Titel und Datum im Demo-Modus (auf Ticket 9D und A). Jarvis hat einen Chat mit Werkzeugen, Modul-Steckplätzen und Schutzschicht (Freigabe-Karte), antwortet aber noch mit einem Demo-Gehirn statt mit Claude. Es kennt zwei Demo-Module mit erfundenen Daten: einen Kalender mit Dauerterminen und eine Aufgabenliste mit Fristen. Nichts wird gespeichert. Login, Datenbank, Claude und der echte Kalender kommen im Anschluss-Block. Die Gestaltung ist ein Platzhalter.
 
 ## Demo-Modus ausprobieren
 
@@ -19,6 +19,8 @@ Im Bereich „Jarvis“ zum Beispiel:
 - „Training ist ab jetzt immer um 19 Uhr“ → Karte mit „Gilt für: Ab … jede Woche“. Danach ist Training ab heute jede Woche um 19 Uhr, frühere Wochen bleiben.
 - „Training fällt nächste Woche aus“ oder „Sag Training am Samstag ab“ (Training liegt in jeder neuen Sitzung auf dem heutigen Wochentag, 20 Uhr) → Karte „Termin absagen“ mit „Fällt weg: Nur am …“. Danach fehlt nur dieses eine Mal.
 - „Trag jeden Mittwoch 20 Uhr Chorprobe ein“ → Karte „Dauertermin anlegen“ mit „Jede Woche am Mittwoch“.
+- „Training dauert ab jetzt 2 Stunden“, „Benenne Laufen im Park um in Joggen“ → Karte „Termin ändern“ mit Bisher und Neu.
+- Datumsangaben gehen überall: „Was steht am 21. Oktober an?“, „Trag Zahnarzt am 3.11. um 9 Uhr ein“, „Neue Aufgabe: Steuer bis 31.10.“.
 - „Wann ist Training?“ → alle Termine mit diesem Titel in den nächsten 30 Tagen. So sieht man, was ausfällt und was wieder da ist.
 - „Ablehnen“ ändert in allen Fällen nichts. Gibt es keinen passenden Termin („Verschieb Fliegen lernen auf 10 Uhr“), sagt Jarvis das freundlich.
 - Alles andere → Jarvis sagt freundlich, dass es das im Demo-Modus noch nicht kann.
@@ -40,7 +42,7 @@ Nach dem Neuladen ist alles wieder auf Anfang.
 - **Zustände:** Laden, Fehler mit „Erneut versuchen“, „Seite nicht gefunden“ und ein Leer-Zustand für Bereiche ohne Inhalt.
 - **Home-Bildschirm:** In Safari auf dem iPhone über Teilen → „Zum Home-Bildschirm“. Dann startet Jarvis im Vollbild mit eigenem Icon. Dafür sorgen `src/app/manifest.ts`, `src/app/icon.tsx` und `src/app/apple-icon.tsx`.
 
-Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine) und 17 (Tagesüberblick).
+Details stehen in `docs/architektur.md`, Abschnitt 13 (App-Hülle), 14 (Kern im Demo-Modus), 15 (Aufgaben), 16 (Termine pflegen und Dauertermine), 17 (Tagesüberblick) und 18 (Dauer, Titel, Datum).
 
 ## Lokal starten
 

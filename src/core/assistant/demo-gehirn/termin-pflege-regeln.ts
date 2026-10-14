@@ -18,9 +18,11 @@ import {
 import type { GehirnAntwort } from "../gehirn";
 import { type DemoRegel, type WerkzeugSchritt, rufe, sage } from "./regel";
 import {
+  findeDauer,
   findeNaechsteWoche,
   findeTage,
   findeUhrzeiten,
+  findeUmbenennung,
   zerlege,
 } from "./verstehen";
 
@@ -122,6 +124,13 @@ const BEFEHLSWOERTER = new Set([
   "meinem",
   "kalender",
   "jarvis",
+  "es",
+  "er",
+  "und",
+  // Dauer
+  "dauert",
+  "dauern",
+  "lang",
 ]);
 
 type Verstanden = {
@@ -134,6 +143,10 @@ type Verstanden = {
   zielTag?: string;
   /** Neue Uhrzeit */
   zielZeit?: { stunde: number; minute: number };
+  /** Neue Dauer in Minuten („dauert ab jetzt 2 Stunden“) */
+  dauer?: number;
+  /** Neuer Titel („Benenne … um in …“) */
+  neuerTitel?: string;
 };
 
 function verstehe(text: string, jetzt: Date): Verstanden {
@@ -141,9 +154,18 @@ function verstehe(text: string, jetzt: Date): Verstanden {
   const satz = ` ${w.klein.join(" ")} `;
   const verbraucht = new Set<number>();
 
+  // Der neue Titel zählt weder für die Suche noch als Tag oder Uhrzeit.
+  const umbenennung = findeUmbenennung(w);
+  umbenennung?.positionen.forEach((p) => verbraucht.add(p));
+  const frei = (f: { positionen: number[] }) =>
+    !f.positionen.some((p) => umbenennung?.positionen.includes(p));
+
+  const dauer = findeDauer(w);
+  if (dauer && frei(dauer)) dauer.positionen.forEach((p) => verbraucht.add(p));
+
   let quelleTag: string | undefined;
   let zielTag: string | undefined;
-  for (const fund of findeTage(w, jetzt)) {
+  for (const fund of findeTage(w, jetzt).filter(frei)) {
     fund.positionen.forEach((p) => verbraucht.add(p));
     // „auf Mittwoch“, „auf den Mittwoch“: wohin. Sonst: welcher Termin.
     const vor = Math.min(...fund.positionen);
@@ -156,7 +178,7 @@ function verstehe(text: string, jetzt: Date): Verstanden {
   }
 
   // Bei zwei Uhrzeiten („von 20 auf 19 Uhr“) zählt die letzte.
-  const uhrzeiten = findeUhrzeiten(w);
+  const uhrzeiten = findeUhrzeiten(w).filter(frei);
   uhrzeiten.forEach((u) => u.positionen.forEach((p) => verbraucht.add(p)));
   const zielZeit = uhrzeiten.at(-1);
 
@@ -200,6 +222,8 @@ function verstehe(text: string, jetzt: Date): Verstanden {
     ...(zielZeit
       ? { zielZeit: { stunde: zielZeit.stunde, minute: zielZeit.minute } }
       : {}),
+    ...(dauer && frei(dauer) ? { dauer: dauer.minuten } : {}),
+    ...(umbenennung ? { neuerTitel: umbenennung.titel } : {}),
   };
 }
 
@@ -291,7 +315,7 @@ function zielVon(t: TerminAnsicht, umfang: Umfang) {
 const AENDERN =
   / (verschieb|verschiebe|verschieben|verleg|verlege|verlegen|änder|ändere|ändern) /;
 const FESTSTELLUNG =
-  / (ist|sind|beginnt|beginnen|startet|fängt|findet|soll|sollen) /;
+  / (ist|sind|beginnt|beginnen|startet|fängt|findet|soll|sollen|dauert|dauern) /;
 /** So beginnen Fragen; „Ist Training um 19 Uhr?“ ist keine Änderung. */
 const FRAGE_ANFANG = new Set([
   "was",
@@ -316,30 +340,105 @@ const FRAGE_ANFANG = new Set([
   "hast",
 ]);
 
-function istAenderung(text: string) {
+/**
+ * Ist das eine Änderung? „befehl“: mit Verb wie „Verschieb“ oder „Benenne …
+ * um“. „feststellung“: „Training ist ab jetzt immer um 19 Uhr“, „Training
+ * dauert 2 Stunden“, „Training heißt ab jetzt Fußball“, aber keine Frage.
+ */
+function artDerAenderung(text: string): "befehl" | "feststellung" | null {
   const w = zerlege(text);
   const satz = ` ${w.klein.join(" ")} `;
-  if (AENDERN.test(satz)) return true;
-  // „Training ist ab jetzt immer um 19 Uhr“: Feststellung mit Uhrzeit, keine Frage
-  return (
-    FESTSTELLUNG.test(satz) &&
-    findeUhrzeiten(w).length > 0 &&
-    !text.trim().endsWith("?") &&
-    !FRAGE_ANFANG.has(w.klein[0] ?? "")
-  );
+  const umbenennung = findeUmbenennung(w);
+  if (AENDERN.test(satz) || (umbenennung && !umbenennung.feststellung)) {
+    return "befehl";
+  }
+  const keineFrage =
+    !text.trim().endsWith("?") && !FRAGE_ANFANG.has(w.klein[0] ?? "");
+  const mitZiel =
+    (FESTSTELLUNG.test(satz) &&
+      (findeUhrzeiten(w).length > 0 || findeDauer(w) !== null)) ||
+    umbenennung !== null;
+  return keineFrage && mitZiel ? "feststellung" : null;
+}
+
+/** „2 Stunden“, „30 Minuten“, „1 Stunde und 30 Minuten“ */
+function dauerText(minuten: number) {
+  const stunden = Math.floor(minuten / 60);
+  const rest = minuten % 60;
+  return [
+    stunden ? `${stunden} ${stunden === 1 ? "Stunde" : "Stunden"}` : "",
+    rest ? `${rest} ${rest === 1 ? "Minute" : "Minuten"}` : "",
+  ]
+    .filter(Boolean)
+    .join(" und ");
+}
+
+const minutenVon = (t: TerminAnsicht) =>
+  (Date.parse(t.ende) - Date.parse(t.beginn)) / 60_000;
+
+/** Bestätigung nach dem Ändern: was sich geändert hat und für welche Termine */
+function bestaetigung({
+  vorher,
+  termin,
+  umfang,
+}: TerminAendernErgebnis): string {
+  const beginn = new Date(termin.beginn);
+  const tag = formatiereTag(berlinDatum(beginn));
+  const zeit = formatiereUhrzeit(beginn);
+  const nurZeit =
+    vorher.titel === termin.titel && minutenVon(vorher) === minutenVon(termin);
+
+  if (nurZeit && umfang === "nur_dieses_mal") {
+    return `Erledigt: „${termin.titel}“ steht nur am ${tag}, um ${zeit} Uhr im Demo-Kalender. In den anderen Wochen bleibt der Termin, wie er war.`;
+  }
+  if (nurZeit && umfang === "ab_diesem_termin") {
+    return `Erledigt: „${termin.titel}“ steht ab ${tag}, jede Woche um ${zeit} Uhr im Demo-Kalender. Frühere Termine bleiben, wie sie waren.`;
+  }
+  if (nurZeit) {
+    return `Erledigt: „${termin.titel}“ steht jetzt am ${tag}, um ${zeit} Uhr im Demo-Kalender.`;
+  }
+
+  const teile = [
+    vorher.titel !== termin.titel ? `heißt jetzt „${termin.titel}“` : "",
+    vorher.beginn !== termin.beginn
+      ? `beginnt jetzt am ${tag}, um ${zeit} Uhr`
+      : "",
+    minutenVon(vorher) !== minutenVon(termin)
+      ? `dauert jetzt ${dauerText(minutenVon(termin))}`
+      : "",
+  ].filter(Boolean);
+  const was = `„${vorher.titel}“ ${teile.join(" und ")}`;
+  if (umfang === "nur_dieses_mal") {
+    return `Erledigt: ${was}, nur am ${formatiereTag(termin.vorkommen ?? berlinDatum(beginn))}. In den anderen Wochen bleibt der Termin, wie er war.`;
+  }
+  if (umfang === "ab_diesem_termin") {
+    return `Erledigt: ${was}, ab ${tag} jede Woche. Frühere Termine bleiben, wie sie waren.`;
+  }
+  return `Erledigt: ${was}.`;
 }
 
 export const terminAendern: DemoRegel = {
   werkzeuge: ["termin_aendern", "termine_suchen", "termine_am_tag"],
   erkenne(text, jetzt) {
-    if (!istAenderung(text)) return null;
+    const art = artDerAenderung(text);
+    if (!art) return null;
     const v = verstehe(text, jetzt);
     if (v.such.klein.length === 0) {
+      // Ohne Befehl („Das heißt, …“) war es wohl keine Änderung.
+      if (art === "feststellung") return null;
       return sage(
         "Welchen Termin soll ich ändern? Sag es mir zum Beispiel so: „Verschieb Laufen im Park auf 19 Uhr“.",
       );
     }
-    if (!v.zielTag && !v.zielZeit) {
+    if (v.dauer !== undefined && (v.dauer < 5 || v.dauer > 24 * 60)) {
+      return sage(
+        "Ein Termin dauert im Demo-Kalender mindestens 5 Minuten und höchstens 24 Stunden.",
+      );
+    }
+    if (v.neuerTitel !== undefined && v.neuerTitel.length > 100) {
+      return sage("Der neue Titel ist zu lang. Höchstens 100 Zeichen, bitte.");
+    }
+    if (!v.zielTag && !v.zielZeit && !v.dauer && !v.neuerTitel) {
       return sage(
         `Wohin soll ich „${v.such.anzeige}“ verschieben? Nenn mir eine Uhrzeit oder einen Wochentag, zum Beispiel „Verschieb ${v.such.anzeige} auf 19 Uhr“.`,
       );
@@ -361,7 +460,9 @@ export const terminAendern: DemoRegel = {
       );
       return rufe("termin_aendern", {
         ...zielVon(wahl.termin, v.umfang),
-        beginn: beginn.toISOString(),
+        ...(v.zielTag || v.zielZeit ? { beginn: beginn.toISOString() } : {}),
+        ...(v.dauer ? { dauerMinuten: v.dauer } : {}),
+        ...(v.neuerTitel ? { titel: v.neuerTitel } : {}),
       });
     }
 
@@ -372,23 +473,7 @@ export const terminAendern: DemoRegel = {
     if (ausgang.art === "fehler") {
       return sage(`Das ging nicht: ${ausgang.meldung}`);
     }
-    const { termin, umfang } = ausgang.ergebnis as TerminAendernErgebnis;
-    const beginn = new Date(termin.beginn);
-    const tag = formatiereTag(berlinDatum(beginn));
-    const zeit = formatiereUhrzeit(beginn);
-    if (umfang === "nur_dieses_mal") {
-      return sage(
-        `Erledigt: „${termin.titel}“ steht nur am ${tag}, um ${zeit} Uhr im Demo-Kalender. In den anderen Wochen bleibt der Termin, wie er war.`,
-      );
-    }
-    if (umfang === "ab_diesem_termin") {
-      return sage(
-        `Erledigt: „${termin.titel}“ steht ab ${tag}, jede Woche um ${zeit} Uhr im Demo-Kalender. Frühere Termine bleiben, wie sie waren.`,
-      );
-    }
-    return sage(
-      `Erledigt: „${termin.titel}“ steht jetzt am ${tag}, um ${zeit} Uhr im Demo-Kalender.`,
-    );
+    return sage(bestaetigung(ausgang.ergebnis as TerminAendernErgebnis));
   },
 };
 

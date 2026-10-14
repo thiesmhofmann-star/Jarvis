@@ -315,6 +315,15 @@ Ein Satz, ein Überblick: „Wie sieht mein Tag aus?“, „Briefing“, „Gute
 - Chat: neuer erster Beispielsatz „Wie sieht mein Tag aus?“.
 - Mit Claude entfällt die Regel; ein Briefing-Modul mit mehr Quellen (z. B. Posteingang) ist ein eigenes Ticket.
 
+## 18. Termine: Dauer, Titel und Datum im Demo-Modus (Ticket B)
+Das Demo-Gehirn versteht mehr Sätze; die Werkzeuge bleiben unverändert (`termin_aendern` konnte Dauer und Titel schon seit Ticket 9D).
+
+- **Datumsangaben** in allen Sätzen (Termine, Aufgaben, Überblick): „21.10.“, „21.10.2026“, „21. Oktober“, „am 3. November 2026“. Ohne Jahr gilt der nächste solche Tag, heute zählt mit. Tage, die es nicht gibt (31.4.), zählen nicht. „um 9.10“ und „9.10 Uhr“ bleiben Uhrzeiten.
+- **Dauer:** „Training dauert ab jetzt 2 Stunden“, „… dauert 90 Minuten“, „eine halbe Stunde“, „anderthalb Stunden“, „1 Stunde und 30 Minuten“. Erlaubt sind 5 Minuten bis 24 Stunden; sonst fragt Jarvis nach.
+- **Neuer Titel:** „Benenne X um in Y“, „Benenne X in Y um“, „X heißt ab jetzt Y“, „Ändere den Titel von X in Y“. Bei Dauerterminen gilt dieselbe Umfang-Regel wie beim Verschieben: mit „ab jetzt“, „immer“ usw. ab diesem Termin, sonst nur dieses Mal. Die Karte zeigt dann den alten und den neuen Titel bei „Bisher“ und „Neu“.
+- Mehreres in einem Satz geht: „Verschieb Laufen im Park auf 19 Uhr, es dauert 90 Minuten“.
+- Fragen („Wie lange dauert Training?“, „Wie heißt …?“) und Sätze wie „Das heißt, …“ sind keine Änderungen.
+
 ## Quellen
 - Next.js-Versionen: https://abhs.in/blog/nextjs-current-version-march-2026-stable-release-whats-new · https://versionlog.com/nextjs/
 - Tailwind CSS: https://endoflife.date/tailwind-css
